@@ -531,6 +531,7 @@ void dynamic_keymap_macro_send(uint8_t id) {
                             break;
                         }
                     }
+                    data[3] = 0;
                 }
             } else if (data[1] == SS_DELAY_CODE) {
                 // For delay, decode the delay and wait_ms for that amount
