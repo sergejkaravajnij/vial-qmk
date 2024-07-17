@@ -62,3 +62,5 @@ bool process_record_ruen(uint16_t keycode, keyrecord_t *record);
 void housekeeping_task_ruen(void);
 
 uint8_t get_cur_lang(void);
+
+void set_ruen_toggle_mode(uint8_t mode);

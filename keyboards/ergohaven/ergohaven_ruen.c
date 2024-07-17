@@ -49,6 +49,23 @@ void set_lang(uint8_t lang) {
     cur_lang = lang;
 }
 
+void set_ruen_toggle_mode(uint8_t mode) {
+    switch (mode) {
+        default:
+        case TG_DEFAULT:
+            tg_mode = TG_DEFAULT;
+            break;
+
+        case TG_M1M2:
+            tg_mode = TG_M1M2;
+            break;
+
+        case TG_M0:
+            tg_mode = TG_M0;
+            break;
+    }
+}
+
 void lang_toggle(void) {
     if (cur_lang == LANG_EN)
         set_lang(LANG_RU);
@@ -169,14 +186,17 @@ bool process_record_ruen(uint16_t keycode, keyrecord_t *record) {
 
         case LG_SET_M0:
             tg_mode = TG_M0;
+            kb_config_update_ruen_toggle_mode(tg_mode);
             return false;
 
         case LG_SET_M1M2:
             tg_mode = TG_M1M2;
+            kb_config_update_ruen_toggle_mode(tg_mode);
             return false;
 
         case LG_SET_DFLT:
             tg_mode = TG_DEFAULT;
+            kb_config_update_ruen_toggle_mode(tg_mode);
             return false;
 
         case LG_RU_EN_START ... LG_SLASH:
@@ -215,14 +235,14 @@ bool process_record_ruen(uint16_t keycode, keyrecord_t *record) {
         }
 
         case LG_STORE:
-            stored_lang   = cur_lang;
+            stored_lang         = cur_lang;
             should_revert_macro = true;
             return false;
 
         case LG_REVERT:
             set_lang(stored_lang);
             should_revert_macro = false;
-            revert_time   = timer_read32();
+            revert_time         = timer_read32();
             return false;
     }
 
