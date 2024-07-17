@@ -3,9 +3,13 @@
 
 static uint8_t cur_lang = LANG_EN;
 
+static uint8_t stored_lang = LANG_EN;
+
+static bool should_revert_macro = false;
+
 static uint8_t tg_mode = TG_DEFAULT;
 
-static uint32_t revert_ru_time = 0;
+static uint32_t revert_time = 0;
 
 static bool should_revert_ru = false;
 
@@ -187,7 +191,7 @@ bool process_record_ruen(uint16_t keycode, keyrecord_t *record) {
             set_lang(LANG_EN);
             tap_code16(en_table[keycode - LG_EN_START]);
             should_revert_ru = should_revert_ru || (cur_lang != lang);
-            revert_ru_time   = timer_read32();
+            revert_time      = timer_read32();
             return false;
         }
 
@@ -209,23 +213,39 @@ bool process_record_ruen(uint16_t keycode, keyrecord_t *record) {
             }
             return false;
         }
+
+        case LG_STORE:
+            stored_lang   = cur_lang;
+            should_revert_macro = true;
+            return false;
+
+        case LG_REVERT:
+            set_lang(stored_lang);
+            should_revert_macro = false;
+            revert_time   = timer_read32();
+            return false;
     }
 
     return true;
 }
 
 void housekeeping_task_ruen(void) {
-    if (should_revert_ru && timer_elapsed32(revert_ru_time) > 500) {
+    if (timer_elapsed32(revert_time) < 500) return;
+
+    if (should_revert_ru) {
         should_revert_ru = false;
         set_lang(LANG_RU);
-    } else {
-        struct hid_data_t *hid_data = get_hid_data();
-        if (hid_data->layout_changed) {
-            if (hid_data->layout == LANG_EN)
-                cur_lang = LANG_EN;
-            else
-                cur_lang = LANG_RU;
-            hid_data->layout_changed = false;
-        }
+        return;
+    }
+
+    if (should_revert_macro) return;
+
+    struct hid_data_t *hid_data = get_hid_data();
+    if (hid_data->layout_changed) {
+        if (hid_data->layout == LANG_EN)
+            cur_lang = LANG_EN;
+        else
+            cur_lang = LANG_RU;
+        hid_data->layout_changed = false;
     }
 }

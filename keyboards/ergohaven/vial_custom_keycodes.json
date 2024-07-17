@@ -162,5 +162,13 @@
         {"name": "LG_MOD",
         "title": "Toggle layout on press and release",
         "shortName": "RuEn\nMod"
+        },
+        {"name": "LG_STORE",
+        "title": "Store current layout (useful for macros)",
+        "shortName": "RuEn\nStore"
+        },
+        {"name": "LG_REVERT",
+        "title": "Revert to stored layout (useful for macros)",
+        "shortName": "RuEn\nRevert"
         }
      ],
