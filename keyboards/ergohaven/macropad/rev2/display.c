@@ -636,16 +636,10 @@ const char *special_keycode_to_str(uint16_t keycode) {
             sprintf(buf, EH_SYMBOL_LAYER "%d\n%s", layer, basic_keycode_to_str(kc));
             return buf;
         }
-        case NEXTSEN:
-            return "Next\nsent";
-        case PREDL:
-            return "Next\npredl";
-        case BRACES:
-            return "[ ]";
-        case PARENTH:
-            return "( )";
+        case ALT_S_TAB:
+            return "Alt Sft\nTab";
         case ALT_TAB:
-            return "Alt Tab";
+            return "Alt\nTab";
         case LAYER_NEXT:
             return EH_SYMBOL_LAYER EH_SYMBOL_ANGLES_RIGHT;
         case LAYER_PREV:

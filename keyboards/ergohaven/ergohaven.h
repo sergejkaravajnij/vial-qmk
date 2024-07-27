@@ -49,10 +49,10 @@
 #define APP_B     LSG(KC_B)
 
 enum custom_keycodes {
-    NEXTSEN = QK_KB,
-    PREDL,
-    BRACES,
-    PARENTH,
+    EH_RESERV1 = QK_KB,
+    EH_RESERV2,
+    EH_RESERV3,
+    ALT_S_TAB,
     ALT_TAB,
     LAYER_NEXT,
     LAYER_PREV,

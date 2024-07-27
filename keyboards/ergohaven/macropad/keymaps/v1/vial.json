@@ -6,7 +6,9 @@
         "rows": 5,
         "cols": 3
     },
-#include "keyboards/ergohaven/vial_custom_keycodes.json"
+    "customKeycodes": [
+      #include "keyboards/ergohaven/vial_keycodes_base.json"
+    ],
     "layouts": {
         "keymap": [
   [

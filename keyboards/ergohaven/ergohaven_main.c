@@ -44,7 +44,7 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
       if (record->event.pressed) {
         if (!is_alt_tab_active) {
           is_alt_tab_active = true;
-          register_code(KC_LALT);
+          register_code(keymap_config.swap_lctl_lgui ? KC_LGUI : KC_LALT);
         }
         alt_tab_timer = timer_read();
         register_code(KC_TAB);
@@ -53,46 +53,18 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
       }
       break;
 
-    case NEXTSEN:  // Next sentence macro.
+    case ALT_S_TAB:
       if (record->event.pressed) {
-        SEND_STRING(". ");
-    #ifdef AUDIO_ENABLE
-        PLAY_SONG(caps_sound);
-    #endif
-        add_oneshot_mods(MOD_BIT(KC_LSFT));  // Set one-shot mod for shift.
+        if (!is_alt_tab_active) {
+          is_alt_tab_active = true;
+          register_code(keymap_config.swap_lctl_lgui ? KC_LGUI : KC_LALT);
+        }
+        alt_tab_timer = timer_read();
+        register_code16(S(KC_TAB));
+      } else {
+          unregister_code16(S(KC_TAB));
       }
-      return false;
-
-    case PREDL:  // Next sentence macro.
-      if (record->event.pressed) {
-        SEND_STRING("/ ");
-    #ifdef AUDIO_ENABLE
-        PLAY_SONG(caps_sound);
-    #endif
-        add_oneshot_mods(MOD_BIT(KC_LSFT));  // Set one-shot mod for shift.
-      }
-      return false;
-
-    case BRACES:
-            if (record->event.pressed) {
-                uint8_t shifted = get_mods() & (MOD_MASK_SHIFT);
-                    if (shifted) {
-                        unregister_code(KC_LSFT);
-                        unregister_code(KC_RSFT);
-                        SEND_STRING("{}"SS_TAP(X_LEFT));
-                    }
-                    else {
-                        SEND_STRING("[]"SS_TAP(X_LEFT));
-                    }
-            }
-            break;
-
-    case PARENTH:
-            if (record->event.pressed) {
-                SEND_STRING("()");
-                tap_code(KC_LEFT);
-            }
-          break;
+      break;
 
     case KC_CAPS:
       if (record->event.pressed) {
@@ -188,7 +160,7 @@ bool caps_word_press_user(uint16_t keycode) {
 void matrix_scan_kb(void) { // The very important timer.
   if (is_alt_tab_active) {
     if (timer_elapsed(alt_tab_timer) > 650) {
-      unregister_code(KC_LALT);
+      unregister_code(keymap_config.swap_lctl_lgui ? KC_LGUI : KC_LALT);
       is_alt_tab_active = false;
     }
   }

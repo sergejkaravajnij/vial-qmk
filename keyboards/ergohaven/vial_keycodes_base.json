@@ -1,0 +1,32 @@
+        {"name": "",
+        "title": "Not using",
+        "shortName": ""
+        },
+        {"name": "",
+        "title": "Not using",
+        "shortName": ""
+        },
+        {"name": "",
+        "title": "Not using",
+        "shortName": ""
+        },
+        {"name": "ALT_S_TAB",
+        "title": "Holds Alt and taps Shift+Tab. See Alt Tab description",
+        "shortName": "Alt Sft\nTab"
+        },
+        {"name": "ALT_TAB",
+        "title": "Holds Alt and taps Tab, then waits for 750ms, if the key is tapped again, it will send another Tab; if there is no tap, Alt will turn off. This allows you to cycle through windows with only one key",
+        "shortName": "Alt\nTab"
+        },
+        {"name": "LNEXT",
+        "title": "Switch to the next layer",
+        "shortName": "Next\nLayer"
+        },
+        {"name": "LPREV",
+        "title": "Switch to the previous layer",
+        "shortName": "Prev\nLayer"
+        },
+        {"name": "",
+        "title": "Not using",
+        "shortName": ""
+        }
