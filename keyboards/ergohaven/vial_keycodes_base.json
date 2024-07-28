@@ -12,11 +12,11 @@
         },
         {"name": "WNEXT",
         "title": "Holds Alt and taps Tab, then waits for 650ms, if the key is tapped again, it will send another Tab; if there is no tap, Alt will turn off. This allows you to cycle through windows with only one key",
-        "shortName": "Next\nWindow"
+        "shortName": "Next\nWin"
         },
         {"name": "WPREV",
         "title": "Holds Alt and taps Shift+Tab. See Alt Tab description",
-        "shortName": "Prev\nWindow"
+        "shortName": "Prev\nWin"
         },
         {"name": "LNEXT",
         "title": "Switch to the next layer",
