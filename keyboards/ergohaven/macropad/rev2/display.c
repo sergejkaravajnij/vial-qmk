@@ -637,9 +637,9 @@ const char *special_keycode_to_str(uint16_t keycode) {
             return buf;
         }
         case WPREV:
-            return "Window\n" EH_SYMBOL_ANGLES_LEFT;
+            return "Win\n" EH_SYMBOL_ANGLES_LEFT;
         case WNEXT:
-            return "Window\n" EH_SYMBOL_ANGLES_RIGHT;
+            return "Win\n" EH_SYMBOL_ANGLES_RIGHT;
         case LAYER_NEXT:
             return EH_SYMBOL_LAYER EH_SYMBOL_ANGLES_RIGHT;
         case LAYER_PREV:
