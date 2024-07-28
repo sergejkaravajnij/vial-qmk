@@ -40,7 +40,7 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
   // #endif
 
   switch (keycode) { // This will do most of the grunt work with the keycodes.
-    case ALT_TAB:
+    case WNEXT:
       if (record->event.pressed) {
         if (!is_alt_tab_active) {
           is_alt_tab_active = true;
@@ -53,7 +53,7 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
       }
       break;
 
-    case ALT_S_TAB:
+    case WPREV:
       if (record->event.pressed) {
         if (!is_alt_tab_active) {
           is_alt_tab_active = true;
