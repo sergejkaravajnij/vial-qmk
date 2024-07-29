@@ -21,34 +21,37 @@ void read_string(uint8_t *data, char *string_data) {
     string_data[data_length] = '\0';
 }
 
-void process_raw_hid_data(uint8_t *data, uint8_t length) {
+bool process_raw_hid_data(uint8_t *data, uint8_t length) {
     uint8_t data_type = data[0];
     switch (data_type) {
         case _TIME:
             hid_data.hours        = data[1];
             hid_data.minutes      = data[2];
             hid_data.time_changed = true;
-            break;
+            return true;
 
         case _VOLUME:
             hid_data.volume_changed = true;
             hid_data.volume         = data[1];
-            break;
+            return true;
 
         case _LAYOUT:
             hid_data.layout         = data[1];
             hid_data.layout_changed = true;
-            break;
+            return true;
 
         case _MEDIA_ARTIST:
             hid_data.media_artist_changed = true;
             read_string(data, hid_data.media_artist);
-            break;
+            return true;
 
         case _MEDIA_TITLE:
             hid_data.media_title_changed = true;
             read_string(data, hid_data.media_title);
-            break;
+            return true;
+
+        default:
+            return false;
     }
 }
 
@@ -56,8 +59,8 @@ void process_raw_hid_data(uint8_t *data, uint8_t length) {
 #    include "transactions.h"
 
 void raw_hid_receive_kb(uint8_t *data, uint8_t length) {
-    process_raw_hid_data(data, length);
-    if (is_keyboard_master()) transaction_rpc_send(RPC_SYNC_HID, length, data);
+    bool res = process_raw_hid_data(data, length);
+    if (res && is_keyboard_master()) transaction_rpc_send(RPC_SYNC_HID, length, data);
 }
 
 void hid_sync(uint8_t in_buflen, const void *in_data, uint8_t out_buflen, void *out_data) {
