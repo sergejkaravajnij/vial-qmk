@@ -1,0 +1,28 @@
+{
+    "keyboard_name": "Trackball",
+    "manufacturer": "Ergohaven",
+    "url": "https://ergohaven.xyz",
+    "maintainer": "Ergohaven",
+    "usb": {
+        "vid": "0xE126",
+        "pid": "0x0090",
+        "device_version": "1.0.0"
+    },
+    "bootmagic": {
+        "matrix": [1, 0]
+    },
+    "processor": "RP2040",
+    "bootloader": "rp2040",
+    "matrix_pins": {
+        "direct": [
+            ["GP2",  "GP3"]
+        ]
+    },
+    "layouts": {
+        "LAYOUT": {
+            "layout": [
+                {"x": 0, "y": 0, "matrix": [0, 0]}
+            ]
+        }
+    }
+}

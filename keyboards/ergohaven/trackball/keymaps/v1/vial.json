@@ -1,0 +1,10 @@
+{
+  "name": "Trackball",
+  "matrix": {
+    "rows": 0,
+    "cols": 0
+  },
+  "layouts": {
+    "keymap": []
+  }
+}
