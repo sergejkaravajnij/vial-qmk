@@ -1,10 +1,23 @@
 {
-  "name": "Trackball",
-  "matrix": {
-    "rows": 0,
-    "cols": 0
-  },
-  "layouts": {
-    "keymap": []
-  }
+    "name": "Trackball",
+    "matrix": {
+        "rows": 0,
+        "cols": 0
+    },
+    "layouts": {
+        "labels": [
+            [
+                "DPI",
+                "400",
+                "500",
+                "630",
+                "800",
+                "1000",
+                "1250",
+                "1600",
+                "2000"
+            ]
+        ],
+        "keymap": []
+    }
 }
