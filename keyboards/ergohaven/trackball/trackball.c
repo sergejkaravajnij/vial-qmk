@@ -14,32 +14,19 @@ typedef union {
     uint32_t raw;
     struct {
         uint8_t scroll_mode : 3;
-        uint8_t dpi_mode : 3;
+        uint8_t dpi_mode : 4;
     };
 } vial_config_t;
 
 vial_config_t vial_config;
 
+static const int DPI_TABLE[] = {400, 500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3200, 4000, 5000, 6300, 8000, 8200};
+
 int get_dpi(uint8_t dpi_mode) {
-    switch (dpi_mode) {
-        case 0:
-            return 400;
-        case 1:
-            return 500;
-        case 2:
-            return 630;
-        default:
-        case 3:
-            return 800;
-        case 4:
-            return 1000;
-        case 5:
-            return 1250;
-        case 6:
-            return 1600;
-        case 7:
-            return 2000;
-    }
+    if (dpi_mode < ARRAY_SIZE(DPI_TABLE))
+        return DPI_TABLE[dpi_mode];
+    else
+        return 800;
 }
 
 int get_scroll_div(uint8_t div_mode) {
