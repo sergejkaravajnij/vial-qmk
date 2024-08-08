@@ -2,8 +2,8 @@
 
 #include "quantum.h"
 
-#define SCROLL_DIVISOR_H 32.0
-#define SCROLL_DIVISOR_V 32.0
+static int32_t scroll_divisor_x = 32;
+static int32_t scroll_divisor_y = 32;
 
 static bool scroll_enabled = false;
 
@@ -13,6 +13,7 @@ static int32_t scroll_accumulated_v = 0;
 typedef union {
     uint32_t raw;
     struct {
+        uint8_t scroll_mode : 3;
         uint8_t dpi_mode : 3;
     };
 } vial_config_t;
@@ -41,9 +42,32 @@ int get_dpi(uint8_t dpi_mode) {
     }
 }
 
+int get_scroll_div(uint8_t div_mode) {
+    switch (div_mode) {
+        case 0:
+            return 6;
+        case 1:
+            return 8;
+        case 2:
+            return 11;
+        case 3:
+            return 16;
+        default:
+        case 4:
+            return 23;
+        case 5:
+            return 32;
+        case 6:
+            return 45;
+        case 7:
+            return 64;
+    }
+}
+
 void via_set_layout_options_kb(uint32_t value) {
     vial_config.raw = value;
     pointing_device_set_cpi(get_dpi(vial_config.dpi_mode));
+    scroll_divisor_x = scroll_divisor_y = get_scroll_div(vial_config.scroll_mode);
 }
 
 report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
@@ -51,11 +75,11 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
         scroll_accumulated_h += mouse_report.x;
         scroll_accumulated_v -= mouse_report.y;
 
-        mouse_report.h = scroll_accumulated_h / SCROLL_DIVISOR_H;
-        mouse_report.v = scroll_accumulated_v / SCROLL_DIVISOR_V;
+        mouse_report.h = scroll_accumulated_h / scroll_divisor_x;
+        mouse_report.v = scroll_accumulated_v / scroll_divisor_y;
 
-        scroll_accumulated_h -= mouse_report.h * SCROLL_DIVISOR_H;
-        scroll_accumulated_v -= mouse_report.v * SCROLL_DIVISOR_V;
+        scroll_accumulated_h -= mouse_report.h * scroll_divisor_x;
+        scroll_accumulated_v -= mouse_report.v * scroll_divisor_y;
 
         mouse_report.x = 0;
         mouse_report.y = 0;
