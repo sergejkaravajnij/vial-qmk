@@ -6,6 +6,7 @@ static int32_t scroll_divisor_x = 32;
 static int32_t scroll_divisor_y = 32;
 
 static bool scroll_enabled = false;
+static bool sniper_enabled = false;
 
 static int32_t scroll_accumulated_h = 0;
 static int32_t scroll_accumulated_v = 0;
@@ -14,6 +15,7 @@ typedef union {
     uint32_t raw;
     struct {
         uint8_t scroll_mode : 3;
+        uint8_t sniper_mode : 1;
         uint8_t dpi_mode : 4;
     };
 } vial_config_t;
@@ -51,6 +53,16 @@ int get_scroll_div(uint8_t div_mode) {
     }
 }
 
+int get_sniper_div(uint8_t mode) {
+    switch (mode) {
+        case 0:
+        default:
+            return 2;
+        case 1:
+            return 4;
+    }
+}
+
 void via_set_layout_options_kb(uint32_t value) {
     vial_config.raw = value;
     pointing_device_set_cpi(get_dpi(vial_config.dpi_mode));
@@ -76,6 +88,13 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
 
 bool led_update_user(led_t led_state) {
     scroll_enabled = led_state.num_lock;
+    if (sniper_enabled != led_state.scroll_lock) {
+        sniper_enabled = led_state.scroll_lock;
+        int base_dpi   = get_dpi(vial_config.dpi_mode);
+        int div        = 1;
+        if (sniper_enabled) div = get_sniper_div(vial_config.sniper_mode);
+        pointing_device_set_cpi(base_dpi / div);
+    }
     return true;
 }
 
