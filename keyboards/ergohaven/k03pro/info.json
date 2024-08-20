@@ -12,7 +12,7 @@
     "url": "https://ergohaven.xyz",
     "usb": {
         "vid": "0xE126",
-        "pid": "0x0070",
+        "pid": "0x00A0",
         "device_version": "1.0.0"
     },
     "rgb_matrix": {
