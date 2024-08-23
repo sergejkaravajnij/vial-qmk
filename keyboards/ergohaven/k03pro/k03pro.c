@@ -26,6 +26,28 @@ void housekeeping_task_user(void) {
 //     display_init_kb();
 // }
 
+report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
+    static int32_t scroll_accumulated_h = 0;
+    static int32_t scroll_accumulated_v = 0;
+    static int32_t scroll_divisor_x     = 8;
+    static int32_t scroll_divisor_y     = 8;
+
+    if (mouse_report.h != 0 || mouse_report.v != 0) {
+        scroll_accumulated_h += mouse_report.h;
+        scroll_accumulated_v += mouse_report.v;
+
+        mouse_report.h = scroll_accumulated_h / scroll_divisor_x;
+        mouse_report.v = scroll_accumulated_v / scroll_divisor_y;
+
+        scroll_accumulated_h -= mouse_report.h * scroll_divisor_x;
+        scroll_accumulated_v -= mouse_report.v * scroll_divisor_y;
+
+        mouse_report.x = 0;
+        mouse_report.y = 0;
+    }
+    return mouse_report;
+}
+
 void keyboard_post_init_user(void) {
     display_enabled = false;
 
