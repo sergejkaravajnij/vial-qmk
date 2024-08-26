@@ -95,13 +95,15 @@ void housekeeping_task_user(void) {
         // Interact with slave every 500ms
         static uint32_t last_sync = 0;
         static uint32_t last_synced_config = 0;
-        if (timer_elapsed32(last_sync) > 500 && last_synced_config != vial_config.raw) {
+        if (timer_elapsed32(last_sync) > 500) {
             vial_config.lang      = get_lang();
             vial_config.mac       = get_mac();
             vial_config.caps_word = get_caps_word();
-            if (transaction_rpc_send(RPC_SYNC_CONFIG, sizeof(vial_config_t), &vial_config)) {
-                last_sync = timer_read32();
-                last_synced_config = vial_config.raw;
+            if (last_synced_config != vial_config.raw) {
+                if (transaction_rpc_send(RPC_SYNC_CONFIG, sizeof(vial_config_t), &vial_config)) {
+                    last_sync          = timer_read32();
+                    last_synced_config = vial_config.raw;
+                }
             }
         }
     }

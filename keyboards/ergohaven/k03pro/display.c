@@ -4,6 +4,7 @@
 #include "ergohaven_ruen.h"
 #include "hid.h"
 #include "ergohaven.h"
+#include "k03pro.h"
 
 static uint16_t home_screen_timer = 0;
 
@@ -236,7 +237,7 @@ void display_housekeeping_task(void) {
         lv_scr_load(screen_home);
     }
 
-    if (last_input_activity_elapsed() > EH_TIMEOUT ) {
+    if (last_input_activity_elapsed() > EH_TIMEOUT) {
         rgblight_suspend();
         gpio_write_pin_low(GP17);
         qp_power(display, false);
@@ -247,21 +248,17 @@ void display_housekeeping_task(void) {
         qp_power(display, true);
     }
 
-    toggle_state(label_shift, LV_STATE_PRESSED, (get_mods() | get_oneshot_mods()) & MOD_MASK_SHIFT);
-    toggle_state(label_ctrl, LV_STATE_PRESSED, (get_mods() | get_oneshot_mods()) & MOD_MASK_CTRL);
-    toggle_state(label_alt, LV_STATE_PRESSED, (get_mods() | get_oneshot_mods()) & MOD_MASK_ALT);
-    toggle_state(label_gui, LV_STATE_PRESSED, (get_mods() | get_oneshot_mods()) & MOD_MASK_GUI);
+    int mods = get_mods() | get_oneshot_mods();
+    toggle_state(label_shift, LV_STATE_PRESSED, mods & MOD_MASK_SHIFT);
+    toggle_state(label_ctrl, LV_STATE_PRESSED, mods & MOD_MASK_CTRL);
+    toggle_state(label_alt, LV_STATE_PRESSED, mods & MOD_MASK_ALT);
+    toggle_state(label_gui, LV_STATE_PRESSED, mods & MOD_MASK_GUI);
+
     struct hid_data_t *hid_data = get_hid_data();
     display_process_hid_data(hid_data);
-    set_layout_label(get_cur_lang());
-}
+    set_layout_label(get_lang());
 
-bool led_update_kb(led_t led_state) {
-    bool res = led_update_user(led_state);
-    if (res && is_display_enabled()) {
-        toggle_state(label_caps, LV_STATE_PRESSED, led_state.caps_lock);
-        toggle_state(label_num, LV_STATE_PRESSED, led_state.num_lock);
-    }
-
-    return res;
+    led_t led_state = host_keyboard_led_state();
+    toggle_state(label_caps, LV_STATE_PRESSED, led_state.caps_lock || get_caps_word());
+    toggle_state(label_num, LV_STATE_PRESSED, led_state.num_lock);
 }
