@@ -60,3 +60,5 @@
 #define RGBLIGHT_DEFAULT_SAT 0
 
 #define TAP_CODE_DELAY 1
+
+#define EH_LCD_ENABLED
