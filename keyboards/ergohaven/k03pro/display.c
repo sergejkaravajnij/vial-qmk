@@ -10,6 +10,8 @@ static uint16_t home_screen_timer = 0;
 
 static bool display_enabled;
 
+static bool display_is_on = false;
+
 static painter_device_t display;
 
 /* shared styles */
@@ -160,7 +162,6 @@ bool display_init_kb(void) {
     dprint("display_init_kb - start\n");
 
     gpio_set_pin_output(GP17);
-    gpio_write_pin_high(GP17);
 
     display = qp_st7789_make_spi_device(240, 280, LCD_CS_PIN, LCD_DC_PIN, LCD_RST_PIN, 16, 3);
     qp_set_viewport_offsets(display, 0, 20);
@@ -178,6 +179,7 @@ bool display_init_kb(void) {
     init_screen_volume();
     init_screen_media();
     display_enabled = true;
+    display_turn_on();
 
     return display_enabled;
 }
@@ -231,24 +233,26 @@ void display_process_layer_state(uint8_t layer) {
     lv_label_set_text(label_layer, layer_upper_name(layer));
 }
 
+void display_turn_on(void) {
+    if (!display_is_on) {
+        gpio_write_pin_high(GP17);
+        qp_power(display, true);
+        display_is_on = true;
+    }
+}
+
+void display_turn_off(void) {
+    if (display_is_on) {
+        gpio_write_pin_low(GP17);
+        qp_power(display, false);
+        display_is_on = false;
+    }
+}
+
 void display_housekeeping_task(void) {
     if (home_screen_timer && timer_elapsed(home_screen_timer) > 5000) {
         home_screen_timer = 0;
         lv_scr_load(screen_home);
-    }
-
-    uint32_t cur_time = timer_read32();
-    uint32_t activity_time = last_input_activity_time();
-
-    if (cur_time > activity_time && cur_time - activity_time > EH_TIMEOUT) {
-        rgblight_suspend();
-        gpio_write_pin_low(GP17);
-        qp_power(display, false);
-        return;
-    } else {
-        rgblight_wakeup();
-        gpio_write_pin_high(GP17);
-        qp_power(display, true);
     }
 
     int mods = get_mods() | get_oneshot_mods();

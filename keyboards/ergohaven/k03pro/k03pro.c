@@ -82,10 +82,40 @@ bool is_display_side(void) {
     return false;
 }
 
+static bool lights_off = false;
+
+void lights_wakeup(void) {
+    if (lights_off) {
+        lights_off = false;
+        rgblight_wakeup();
+    }
+}
+
+void lights_suspend(void) {
+    if (!lights_off) {
+        lights_off = true;
+        rgblight_suspend();
+    }
+}
+
 void housekeeping_task_user(void) {
     if (is_display_enabled() && is_display_side()) {
         display_housekeeping_task();
     }
+
+    uint32_t elapsed = last_input_activity_elapsed();
+    if (elapsed > __UINT32_MAX__ - 1000) // possible overflow
+        elapsed = 0;
+
+    if (elapsed > EH_TIMEOUT) {
+        lights_suspend();
+        if (is_display_side()) display_turn_off();
+        return;
+    } else {
+        lights_wakeup();
+        if (is_display_side()) display_turn_on();
+    }
+
     if (is_keyboard_master()) {
         // Interact with slave every 500ms
         static uint32_t last_sync          = 0;
