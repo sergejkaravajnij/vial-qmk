@@ -82,12 +82,12 @@ bool is_display_side(void) {
 }
 
 void housekeeping_task_user(void) {
-    if (is_display_enabled()) {
+    if (is_display_enabled() && is_display_side()) {
         display_housekeeping_task();
     }
     if (is_keyboard_master()) {
         // Interact with slave every 500ms
-        static uint32_t last_sync = 0;
+        static uint32_t last_sync          = 0;
         static uint32_t last_synced_config = 0;
         if (timer_elapsed32(last_sync) > 500) {
             vial_config.lang      = get_lang();
@@ -137,22 +137,4 @@ void keyboard_post_init_user(void) {
     via_set_layout_options_kb(vial_config.raw);
 
     transaction_register_rpc(RPC_SYNC_CONFIG, sync_config);
-}
-
-layer_state_t layer_state_set_user(layer_state_t state) {
-    if (is_display_enabled()) {
-        display_process_layer_state(get_highest_layer(state));
-    }
-    //   #if defined(AUDIO_ENABLE)
-    //     static bool is_base_on = false;
-    // if (layer_state_cmp(state, _BASE) != is_base_on) {
-    //         is_base_on = layer_state_cmp(state, _BASE);
-    //         if (is_base_on) {
-    //             stop_all_notes();
-    //         } else {
-    //             PLAY_SONG(base_sound);
-    //         }
-    //     }
-    // #endif
-    return state;
 }

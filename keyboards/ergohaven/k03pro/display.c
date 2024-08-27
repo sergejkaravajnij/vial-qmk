@@ -99,7 +99,7 @@ void init_screen_home(void) {
     label_shift = create_button(mods, "SFT", &style_button, &style_button_active);
 
     label_caps = create_button(mods, "CAPS", &style_button, &style_button_active);
-    label_num = create_button(mods, "NUM", &style_button, &style_button_active);
+    label_num  = create_button(mods, "NUM", &style_button, &style_button_active);
 
     lv_obj_t *bottom_row = lv_obj_create(screen_home);
     lv_obj_add_style(bottom_row, &style_container, 0);
@@ -169,7 +169,7 @@ bool display_init_kb(void) {
 
     dprint("display_init_kb - initialised\n");
 
-    lv_disp_t  *lv_display = lv_disp_get_default();
+    lv_disp_t * lv_display = lv_disp_get_default();
     lv_theme_t *lv_theme   = lv_theme_default_init(lv_display, lv_palette_main(LV_PALETTE_TEAL), lv_palette_main(LV_PALETTE_BLUE), true, LV_FONT_DEFAULT);
     lv_disp_set_theme(lv_display, lv_theme);
     init_styles();
@@ -261,4 +261,6 @@ void display_housekeeping_task(void) {
     led_t led_state = host_keyboard_led_state();
     toggle_state(label_caps, LV_STATE_PRESSED, led_state.caps_lock || get_caps_word());
     toggle_state(label_num, LV_STATE_PRESSED, led_state.num_lock);
+
+    display_process_layer_state(get_highest_layer(layer_state));
 }
