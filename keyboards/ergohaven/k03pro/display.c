@@ -45,9 +45,9 @@ static lv_obj_t *label_media_artist;
 static lv_obj_t *label_media_title;
 
 /* public function to be used in keymaps */
-// bool is_display_enabled(void) {
-//     return display_enabled;
-// }
+bool is_display_enabled(void) {
+    return display_enabled;
+}
 
 void init_styles(void) {
     lv_style_init(&style_screen);

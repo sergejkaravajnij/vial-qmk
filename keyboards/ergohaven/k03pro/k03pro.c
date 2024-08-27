@@ -71,8 +71,6 @@ void sync_config(uint8_t in_buflen, const void* in_data, uint8_t out_buflen, voi
     via_set_layout_options_kb(value);
 }
 
-static bool display_enabled;
-
 bool is_display_side(void) {
 #ifdef K03_DISPLAY_RIGHT
     return !is_keyboard_left();
@@ -81,10 +79,6 @@ bool is_display_side(void) {
     return is_keyboard_left();
 #endif
     return false;
-}
-
-bool is_display_enabled(void) {
-    return display_enabled;
 }
 
 void housekeeping_task_user(void) {
@@ -135,10 +129,8 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
 }
 
 void keyboard_post_init_user(void) {
-    display_enabled = false;
-
     if (is_display_side()) {
-        display_enabled = display_init_kb();
+        display_init_kb();
     }
 
     vial_config.raw = via_get_layout_options();
