@@ -1,6 +1,7 @@
 #include "display.h"
 #include "transactions.h"
 #include "ergohaven_ruen.h"
+#include "ergohaven_rgb.h"
 
 typedef union {
     uint32_t raw;
@@ -101,6 +102,7 @@ void housekeeping_task_user(void) {
             }
         }
     }
+    layer_state_set_rgb(layer_state);
 }
 
 report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
