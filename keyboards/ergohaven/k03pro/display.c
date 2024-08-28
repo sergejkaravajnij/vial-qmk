@@ -237,7 +237,10 @@ void display_housekeeping_task(void) {
         lv_scr_load(screen_home);
     }
 
-    if (last_input_activity_elapsed() > EH_TIMEOUT) {
+    uint32_t cur_time = timer_read32();
+    uint32_t activity_time = last_input_activity_time();
+
+    if (cur_time > activity_time && cur_time - activity_time > EH_TIMEOUT) {
         rgblight_suspend();
         gpio_write_pin_low(GP17);
         qp_power(display, false);
