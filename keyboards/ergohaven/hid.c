@@ -1,5 +1,6 @@
 #include "hid.h"
 #include <string.h>
+#include "via.h"
 
 static struct hid_data_t hid_data;
 
@@ -61,6 +62,8 @@ bool process_raw_hid_data(uint8_t *data, uint8_t length) {
 void raw_hid_receive_kb(uint8_t *data, uint8_t length) {
     bool res = process_raw_hid_data(data, length);
     if (res && is_keyboard_master()) transaction_rpc_send(RPC_SYNC_HID, length, data);
+    if (res)
+        *((uint32_t*)data) = VIAL_HID_MAGIC;
 }
 
 void hid_sync(uint8_t in_buflen, const void *in_data, uint8_t out_buflen, void *out_data) {
@@ -74,7 +77,9 @@ void keyboard_post_init_hid(void) {
 #else
 
 void raw_hid_receive_kb(uint8_t *data, uint8_t length) {
-    process_raw_hid_data(data, length);
+    bool res = process_raw_hid_data(data, length);
+    if (res)
+        *((uint32_t*)data) = VIAL_HID_MAGIC;
 }
 
 void keyboard_post_init_hid(void) {}
