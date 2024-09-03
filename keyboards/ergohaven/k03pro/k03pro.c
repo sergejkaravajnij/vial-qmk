@@ -7,7 +7,7 @@ typedef union {
     uint32_t raw;
     struct {
         // layout options
-        uint8_t scroll_divisor : 2;
+        uint8_t scroll_divisor : 3;
         bool    invert_scroll : 1;
         uint8_t dpi_mode : 3;
         // other options
