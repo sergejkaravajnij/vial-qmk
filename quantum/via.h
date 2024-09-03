@@ -206,4 +206,4 @@ void via_qmk_audio_get_value(uint8_t *data);
 void via_qmk_audio_save(void);
 #endif
 
-#define VIAL_HID_MAGIC 0xffffffffffffffff  // fix for conflict with vial and qmk-hid-host
+#define VIAL_HID_MAGIC 0xa3fb1cbc0abd6125 // fix for conflict with vial and qmk-hid-host
