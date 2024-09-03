@@ -42,5 +42,5 @@ jobs:
       name: Upload
       id: upload
       with:
-        path: .build/*.uf2
+        path: "*.uf2"
         name: ergohaven_fw
