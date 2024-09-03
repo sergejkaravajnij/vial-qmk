@@ -46,14 +46,22 @@ static int32_t scroll_divisor_y = 8;
 int get_scroll_div(uint8_t div_mode) {
     switch (div_mode) {
         case 0:
-            return 1;
+            return 6;
         case 1:
-            return 2;
-        case 2:
-            return 4;
-        default:
-        case 3:
             return 8;
+        case 2:
+            return 11;
+        case 3:
+            return 16;
+        default:
+        case 4:
+            return 23;
+        case 5:
+            return 32;
+        case 6:
+            return 45;
+        case 7:
+            return 64;
     }
 }
 
