@@ -217,6 +217,17 @@ report_mouse_t azoteq_iqs5xx_get_report(report_mouse_t mouse_report) {
         pd_dprintf("IQS5XX - Init failed: %d \n", azoteq_iqs5xx_init_status);
     }
 
+    static uint32_t button_press_time = 0;
+    static uint8_t  prev_buttons      = 0;
+    if (temp_report.buttons) {
+        prev_buttons |= temp_report.buttons;
+        button_press_time = timer_read32();
+    }
+    if (timer_elapsed32(button_press_time) < 40)
+        temp_report.buttons = prev_buttons;
+    else
+        temp_report.buttons = prev_buttons = 0;
+
     return temp_report;
 }
 
