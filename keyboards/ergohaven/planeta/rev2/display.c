@@ -114,7 +114,7 @@ void init_screen_home(void) {
     lv_obj_align(label_layout, LV_ALIGN_RIGHT_MID, -20, 0);
 
     label_version = lv_label_create(screen_home);
-    lv_label_set_text(label_version, EH_VERSION_STR);
+    lv_label_set_text(label_version, "v" EH_VERSION_STR);
 }
 
 void init_screen_volume(void) {
