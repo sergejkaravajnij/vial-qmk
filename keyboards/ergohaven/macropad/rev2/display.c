@@ -34,7 +34,19 @@ LV_FONT_DECLARE(ergohaven_symbols)
 
 static uint16_t home_screen_timer = 0;
 
-static bool display_enabled;
+static bool display_enabled = false;
+static bool is_display_on   = false;
+
+typedef enum {
+    SCREEN_OFF = -1,
+    SCREEN_SPLASH,
+    SCREEN_LAYOUT,
+    SCREEN_VOLUME,
+    SCREEN_HOME,
+} screen_t;
+
+static screen_t screen_state        = SCREEN_OFF;
+static screen_t change_screen_state = SCREEN_OFF;
 
 static painter_device_t display;
 
@@ -45,7 +57,7 @@ lv_style_t style_button;
 lv_style_t style_button_active;
 
 /* screens */
-static lv_obj_t *screen_test;
+static lv_obj_t *screen_layout;
 static lv_obj_t *screen_home;
 static lv_obj_t *screen_volume;
 static lv_obj_t *screen_media;
@@ -53,7 +65,6 @@ static lv_obj_t *screen_media;
 /* home screen content */
 static lv_obj_t *label_time;
 static lv_obj_t *label_volume_home;
-static lv_obj_t *txt_layer;
 static lv_obj_t *label_layer;
 static lv_obj_t *label_version;
 
@@ -101,20 +112,20 @@ void init_styles(void) {
     lv_style_set_text_color(&style_button_active, lv_color_black());
 }
 
-void init_screen_home(void) {
-    screen_test = lv_scr_act();
-    lv_obj_add_style(screen_test, &style_screen, 0);
-    use_flex_column(screen_test);
-    lv_obj_set_scrollbar_mode(screen_test, LV_SCROLLBAR_MODE_OFF);
+void init_screen_layout(void) {
+    screen_layout = lv_obj_create(NULL);
+    lv_obj_add_style(screen_layout, &style_screen, 0);
+    use_flex_column(screen_layout);
+    lv_obj_set_scrollbar_mode(screen_layout, LV_SCROLLBAR_MODE_OFF);
 
-    label_layer_small = lv_label_create(screen_test);
+    label_layer_small = lv_label_create(screen_layout);
     lv_label_set_text(label_layer_small, "layer");
     lv_obj_set_style_pad_top(label_layer_small, 25, 0);
     lv_obj_set_style_pad_bottom(label_layer_small, 25, 0);
     lv_obj_set_style_text_color(label_layer_small, lv_palette_main(LV_PALETTE_TEAL), 0);
     lv_obj_set_style_text_font(label_layer_small, &lv_font_montserrat_28, LV_PART_MAIN);
 
-    lv_obj_t *cont = lv_obj_create(screen_test);
+    lv_obj_t *cont = lv_obj_create(screen_layout);
     lv_obj_set_size(cont, 232, 250);
     // lv_obj_center(cont);
     lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_ROW_WRAP);
@@ -144,7 +155,9 @@ void init_screen_home(void) {
         lv_obj_set_style_text_font(key_labels[i], &ergohaven_symbols, LV_PART_MAIN);
         lv_obj_set_style_text_align(key_labels[i], LV_TEXT_ALIGN_CENTER, 0);
     }
+}
 
+void init_screen_home(void) {
     screen_home = lv_obj_create(NULL);
     lv_obj_add_style(screen_home, &style_screen, 0);
     use_flex_column(screen_home);
@@ -153,11 +166,8 @@ void init_screen_home(void) {
     lv_label_set_text(label_volume_home, "Ergohaven");
 
     label_time = lv_label_create(screen_home);
-    lv_label_set_text(label_time, "Macropad");
+    lv_label_set_text(label_time, "M4CR0Pad");
     lv_obj_set_style_text_font(label_time, &lv_font_montserrat_40, LV_PART_MAIN);
-
-    txt_layer = lv_label_create(screen_home);
-    lv_label_set_text(txt_layer, "Layer:");
 
     label_layer = lv_label_create(screen_home);
     lv_label_set_text(label_layer, "");
@@ -218,12 +228,11 @@ bool display_init_kb(void) {
     dprint("display_init_kb - start\n");
 
     gpio_set_pin_output(GP17);
-    gpio_write_pin_high(GP17);
 
     display = qp_st7789_make_spi_device(240, 280, LCD_CS_PIN, LCD_DC_PIN, LCD_RST_PIN, 16, 3);
     qp_set_viewport_offsets(display, 0, 20);
 
-    if (!qp_init(display, QP_ROTATION_180) || !qp_power(display, true) || !qp_lvgl_attach(display)) return display_enabled;
+    if (!qp_init(display, QP_ROTATION_180) || !qp_lvgl_attach(display)) return display_enabled;
 
     dprint("display_init_kb - initialised\n");
 
@@ -232,23 +241,23 @@ bool display_init_kb(void) {
     lv_disp_set_theme(lv_display, lv_theme);
     init_styles();
 
+    init_screen_layout();
     init_screen_home();
     init_screen_volume();
     init_screen_media();
     display_enabled = true;
 
-    return display_enabled;
-}
+    display_process_layer_state(layer_state);
+    change_screen_state = SCREEN_SPLASH;
 
-void start_home_screen_timer(void) {
-    dprint("start_home_screen_timer\n");
-    home_screen_timer = timer_read();
+    return display_enabled;
 }
 
 void display_process_hid_data(struct hid_data_t *hid_data) {
     dprintf("display_process_hid_data");
     if (hid_data->time_changed) {
         lv_label_set_text_fmt(label_time, "%02d:%02d", hid_data->hours, hid_data->minutes);
+        change_screen_state    = SCREEN_HOME;
         hid_data->time_changed = false;
     }
     if (hid_data->volume_changed) {
@@ -256,19 +265,19 @@ void display_process_hid_data(struct hid_data_t *hid_data) {
         lv_label_set_text_fmt(label_volume_arc, "%02d", hid_data->volume);
         lv_arc_set_value(arc_volume, hid_data->volume);
         lv_scr_load(screen_volume);
-        start_home_screen_timer();
+        change_screen_state      = SCREEN_VOLUME;
         hid_data->volume_changed = false;
     }
     if (hid_data->media_artist_changed) {
         lv_label_set_text(label_media_artist, hid_data->media_artist);
         lv_scr_load(screen_media);
-        start_home_screen_timer();
+        change_screen_state            = SCREEN_HOME;
         hid_data->media_artist_changed = false;
     }
     if (hid_data->media_title_changed) {
         lv_label_set_text(label_media_title, hid_data->media_title);
         lv_scr_load(screen_media);
-        start_home_screen_timer();
+        change_screen_state           = SCREEN_HOME;
         hid_data->media_title_changed = false;
     }
 }
@@ -717,8 +726,9 @@ uint16_t get_encoder_keycode(int layer, int encoder, bool clockwise) {
 }
 
 void display_process_layer_state(uint8_t layer) {
+    if (!display_enabled) return;
+
     const char *layer_name = get_layer_name(layer);
-    lv_label_set_text(label_layer, layer_name);
     lv_label_set_text(label_layer_small, layer_name);
 
     for (int i = 0; i < 15; i++) {
@@ -735,33 +745,102 @@ void display_process_layer_state(uint8_t layer) {
     }
 }
 
-void display_housekeeping_task(void) {
-    if (home_screen_timer && timer_elapsed(home_screen_timer) > 5000) {
-        home_screen_timer = 0;
-        lv_scr_load(screen_test);
+void update_screen_state(void) {
+    home_screen_timer = timer_read();
+    screen_state      = change_screen_state;
+    switch (screen_state) {
+        case SCREEN_SPLASH:
+        case SCREEN_HOME:
+            display_turn_on();
+            lv_scr_load(screen_home);
+            break;
+        case SCREEN_LAYOUT:
+            display_turn_on();
+            lv_scr_load(screen_layout);
+            break;
+        case SCREEN_VOLUME:
+            display_turn_on();
+            lv_scr_load(screen_volume);
+            break;
+        case SCREEN_OFF:
+            display_turn_off();
+            break;
     }
+}
 
-    if (last_input_activity_elapsed() > EH_TIMEOUT) {
-        display_turn_off();
-        return;
-    } else {
-        display_turn_on();
-    }
+void display_housekeeping_task(void) {
+    if (!display_enabled) return;
 
     struct hid_data_t *hid_data = get_hid_data();
     display_process_hid_data(hid_data);
+
+    static screen_t prev_screen_state;
+    if (change_screen_state == SCREEN_VOLUME && change_screen_state != screen_state) {
+        prev_screen_state = screen_state;
+    }
+
+    if (screen_state == change_screen_state) {
+        uint16_t screen_elapsed   = timer_elapsed(home_screen_timer);
+        uint16_t activity_elapsed = last_input_activity_elapsed();
+
+        switch (screen_state) {
+            case SCREEN_SPLASH:
+                if (screen_elapsed > 2 * 1000) {
+                    change_screen_state = SCREEN_LAYOUT;
+                    break;
+                }
+
+            case SCREEN_LAYOUT:
+                if (screen_elapsed > 30 * 1000) {
+                    change_screen_state = SCREEN_HOME;
+                    break;
+                }
+
+            case SCREEN_HOME:
+                if (activity_elapsed < 100) {
+                    change_screen_state = SCREEN_LAYOUT;
+                    break;
+                }
+                if (activity_elapsed > 60 * 1000 /*EH_TIMEOUT*/) {
+                    change_screen_state = SCREEN_OFF;
+                    break;
+                }
+
+            case SCREEN_VOLUME:
+                if (activity_elapsed > 2 * 1000) {
+                    change_screen_state = prev_screen_state;
+                    break;
+                }
+                break;
+
+            case SCREEN_OFF:
+                if (activity_elapsed < 100) {
+                    change_screen_state = SCREEN_LAYOUT;
+                    break;
+                }
+                break;
+        }
+    }
+    if (change_screen_state != screen_state) {
+        update_screen_state();
+        return;
+    }
 }
 
 void display_turn_on(void) {
-    gpio_write_pin_high(GP17);
-    qp_power(display, true);
-    display_enabled = true;
+    if (!is_display_on) {
+        gpio_write_pin_high(GP17);
+        qp_power(display, true);
+        is_display_on = true;
+    }
 }
 
 void display_turn_off(void) {
-    display_enabled = false;
-    qp_power(display, false);
-    gpio_write_pin_low(GP17);
+    if (is_display_on) {
+        is_display_on = false;
+        qp_power(display, false);
+        gpio_write_pin_low(GP17);
+    }
 }
 
 void suspend_power_down_kb(void) {
