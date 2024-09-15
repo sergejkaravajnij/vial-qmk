@@ -227,7 +227,7 @@ bool display_init_kb(void) {
 
     dprint("display_init_kb - initialised\n");
 
-    lv_disp_t * lv_display = lv_disp_get_default();
+    lv_disp_t  *lv_display = lv_disp_get_default();
     lv_theme_t *lv_theme   = lv_theme_default_init(lv_display, lv_palette_main(LV_PALETTE_TEAL), lv_palette_main(LV_PALETTE_BLUE), true, LV_FONT_DEFAULT);
     lv_disp_set_theme(lv_display, lv_theme);
     init_styles();
@@ -666,7 +666,7 @@ const char *keycode_to_str(uint16_t keycode) {
     bool        shift             = mods & MOD_MASK_SHIFT;
     bool        alt               = mods & MOD_MASK_ALT;
     bool        gui               = mods & MOD_MASK_GUI;
-    char *      mod_str;
+    char       *mod_str;
     if (ctrl && shift && alt && gui)
         mod_str = "CSAG\n";
     else if (shift && alt && gui)
@@ -741,15 +741,35 @@ void display_housekeeping_task(void) {
         lv_scr_load(screen_test);
     }
 
-        if (last_input_activity_elapsed() > EH_TIMEOUT) {
-        gpio_write_pin_low(GP17);
-        qp_power(display, false);
+    if (last_input_activity_elapsed() > EH_TIMEOUT) {
+        display_turn_off();
         return;
     } else {
-        gpio_write_pin_high(GP17);
-        qp_power(display, true);
+        display_turn_on();
     }
 
     struct hid_data_t *hid_data = get_hid_data();
     display_process_hid_data(hid_data);
+}
+
+void display_turn_on(void) {
+    gpio_write_pin_high(GP17);
+    qp_power(display, true);
+    display_enabled = true;
+}
+
+void display_turn_off(void) {
+    display_enabled = false;
+    qp_power(display, false);
+    gpio_write_pin_low(GP17);
+}
+
+void suspend_power_down_kb(void) {
+    display_turn_off();
+    suspend_power_down_user();
+}
+
+void suspend_wakeup_init_kb(void) {
+    display_turn_on();
+    suspend_wakeup_init_user();
 }
