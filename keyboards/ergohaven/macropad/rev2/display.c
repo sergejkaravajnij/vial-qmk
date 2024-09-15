@@ -741,8 +741,7 @@ void display_housekeeping_task(void) {
         lv_scr_load(screen_test);
     }
 
-    const int TIMEOUT = (1 * 60 * 1000);
-    if (last_input_activity_elapsed() > TIMEOUT) {
+        if (last_input_activity_elapsed() > EH_TIMEOUT) {
         gpio_write_pin_low(GP17);
         qp_power(display, false);
         return;
