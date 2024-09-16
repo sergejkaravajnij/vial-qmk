@@ -32,7 +32,7 @@ LV_FONT_DECLARE(ergohaven_symbols)
 #define EH_SYMBOL_GLOBE "\xEF\x82\xAC"
 #define EH_SYMBOL_LAYER "\xEF\x97\xBD"
 
-static uint16_t home_screen_timer = 0;
+static uint32_t home_screen_timer = 0;
 
 static bool display_enabled = false;
 static bool is_display_on   = false;
@@ -264,7 +264,7 @@ void display_process_hid_data(struct hid_data_t *hid_data) {
         lv_label_set_text_fmt(label_volume_home, "Vol: %02d%%", hid_data->volume);
         lv_label_set_text_fmt(label_volume_arc, "%02d", hid_data->volume);
         lv_arc_set_value(arc_volume, hid_data->volume);
-        lv_scr_load(screen_volume);
+        home_screen_timer        = timer_read32();
         change_screen_state      = SCREEN_VOLUME;
         hid_data->volume_changed = false;
     }
@@ -746,7 +746,7 @@ void display_process_layer_state(uint8_t layer) {
 }
 
 void update_screen_state(void) {
-    home_screen_timer = timer_read();
+    home_screen_timer = timer_read32();
     screen_state      = change_screen_state;
     switch (screen_state) {
         case SCREEN_SPLASH:
@@ -780,43 +780,39 @@ void display_housekeeping_task(void) {
     }
 
     if (screen_state == change_screen_state) {
-        uint16_t screen_elapsed   = timer_elapsed(home_screen_timer);
-        uint16_t activity_elapsed = last_input_activity_elapsed();
+        uint32_t screen_elapsed   = timer_elapsed32(home_screen_timer);
+        uint32_t activity_elapsed = last_input_activity_elapsed();
 
         switch (screen_state) {
             case SCREEN_SPLASH:
                 if (screen_elapsed > 2 * 1000) {
                     change_screen_state = SCREEN_LAYOUT;
-                    break;
                 }
+                break;
 
             case SCREEN_LAYOUT:
                 if (screen_elapsed > 30 * 1000) {
                     change_screen_state = SCREEN_HOME;
-                    break;
                 }
+                break;
 
             case SCREEN_HOME:
                 if (activity_elapsed < 100) {
                     change_screen_state = SCREEN_LAYOUT;
-                    break;
-                }
-                if (activity_elapsed > 60 * 1000 /*EH_TIMEOUT*/) {
+                } else if (activity_elapsed > 60 * 1000 /*EH_TIMEOUT*/) {
                     change_screen_state = SCREEN_OFF;
-                    break;
                 }
+                break;
 
             case SCREEN_VOLUME:
-                if (activity_elapsed > 2 * 1000) {
+                if (screen_elapsed > 2 * 1000) {
                     change_screen_state = prev_screen_state;
-                    break;
                 }
                 break;
 
             case SCREEN_OFF:
-                if (activity_elapsed < 100) {
+                if (activity_elapsed < 60 * 1000 /*EH_TIMEOUT*/) {
                     change_screen_state = SCREEN_LAYOUT;
-                    break;
                 }
                 break;
         }
