@@ -32,7 +32,7 @@ LV_FONT_DECLARE(ergohaven_symbols)
 #define EH_SYMBOL_GLOBE "\xEF\x82\xAC"
 #define EH_SYMBOL_LAYER "\xEF\x97\xBD"
 
-static uint32_t home_screen_timer = 0;
+static uint32_t screen_timer = 0;
 
 static bool display_enabled = false;
 static bool is_display_on   = false;
@@ -42,7 +42,7 @@ typedef enum {
     SCREEN_SPLASH,
     SCREEN_LAYOUT,
     SCREEN_VOLUME,
-    SCREEN_HOME,
+    SCREEN_HID,
 } screen_t;
 
 static screen_t screen_state        = SCREEN_OFF;
@@ -57,17 +57,26 @@ lv_style_t style_button;
 lv_style_t style_button_active;
 
 /* screens */
+static lv_obj_t *screen_splash;
+static lv_obj_t *screen_hid;
 static lv_obj_t *screen_layout;
-static lv_obj_t *screen_home;
 static lv_obj_t *screen_volume;
-static lv_obj_t *screen_media;
 
-/* home screen content */
-static lv_obj_t *label_time;
-static lv_obj_t *label_volume_home;
-static lv_obj_t *label_layer;
+/* splash screen content */
+static lv_obj_t *label_company;
+static lv_obj_t *label_product;
+static lv_obj_t *label_subproduct;
 static lv_obj_t *label_version;
 
+/* hid screen content */
+static lv_obj_t *label_time;
+static lv_obj_t *label_layer;
+static lv_obj_t *label_media_artist;
+static lv_obj_t *label_media_title;
+static lv_obj_t *label_layer;
+static lv_obj_t *label_layout;
+
+/* layout screen content */
 static lv_obj_t *key_labels[15];
 static lv_obj_t *label_layer_small;
 
@@ -76,8 +85,6 @@ static lv_obj_t *arc_volume;
 static lv_obj_t *label_volume_arc;
 
 /* media screen content */
-static lv_obj_t *label_media_artist;
-static lv_obj_t *label_media_title;
 
 /* public function to be used in keymaps */
 bool is_display_enabled(void) {
@@ -157,33 +164,80 @@ void init_screen_layout(void) {
     }
 }
 
-void init_screen_home(void) {
-    screen_home = lv_obj_create(NULL);
-    lv_obj_add_style(screen_home, &style_screen, 0);
-    use_flex_column(screen_home);
+void init_screen_splash(void) {
+    screen_splash = lv_obj_create(NULL);
+    lv_obj_add_style(screen_splash, &style_screen, 0);
+    use_flex_column(screen_splash);
 
-    label_volume_home = lv_label_create(screen_home);
-    lv_label_set_text(label_volume_home, "Ergohaven");
+    label_company = lv_label_create(screen_splash);
+    lv_label_set_text(label_company, "Ergohaven");
 
-    label_time = lv_label_create(screen_home);
-    lv_label_set_text(label_time, "M4CR0Pad");
-    lv_obj_set_style_text_font(label_time, &lv_font_montserrat_40, LV_PART_MAIN);
+    label_product = lv_label_create(screen_splash);
+    lv_label_set_text(label_product, "M4CR0Pad");
+    lv_obj_set_style_text_font(label_product, &lv_font_montserrat_40, LV_PART_MAIN);
+    lv_obj_set_style_text_color(label_product, lv_palette_main(LV_PALETTE_TEAL), 0);
+    lv_obj_set_style_pad_bottom(label_product, 0, 0);
 
-    label_layer = lv_label_create(screen_home);
-    lv_label_set_text(label_layer, "");
-    lv_obj_set_style_text_font(label_layer, &lv_font_montserrat_40, LV_PART_MAIN);
-    display_process_layer_state(0);
+    label_subproduct = lv_label_create(screen_splash);
+    lv_label_set_long_mode(label_subproduct, LV_LABEL_LONG_WRAP);
+    lv_obj_set_width(label_subproduct, lv_pct(90));
+    lv_obj_set_style_text_align(label_subproduct, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_set_style_pad_top(label_subproduct, 0, 0);
+    lv_label_set_text(label_subproduct, "Next-generation universal macropad");
 
-    lv_obj_t *mods = lv_obj_create(screen_home);
-    lv_obj_add_style(mods, &style_container, 0);
-    use_flex_row(mods);
-
-    lv_obj_t *bottom_row = lv_obj_create(screen_home);
+    lv_obj_t *bottom_row = lv_obj_create(screen_splash);
     lv_obj_add_style(bottom_row, &style_container, 0);
     use_flex_row(bottom_row);
 
-    label_version = lv_label_create(screen_home);
-    lv_label_set_text(label_version, EH_VERSION_STR);
+    label_version = lv_label_create(screen_splash);
+    lv_label_set_text(label_version, "v" EH_VERSION_STR);
+}
+
+void init_screen_hid(void) {
+    screen_hid = lv_obj_create(NULL);
+    lv_obj_add_style(screen_hid, &style_screen, 0);
+    use_flex_column(screen_hid);
+
+    label_time = lv_label_create(screen_hid);
+    lv_label_set_text(label_time, "HH:MM");
+    lv_obj_set_style_text_font(label_time, &lv_font_montserrat_48, LV_PART_MAIN);
+    lv_obj_set_style_pad_top(label_time, 40, 0);
+    lv_obj_set_style_pad_bottom(label_time, 20, 0);
+
+    lv_obj_t *bottom_row = lv_obj_create(screen_hid);
+    lv_obj_add_style(bottom_row, &style_container, 0);
+    use_flex_row(bottom_row);
+
+    label_layer = lv_label_create(bottom_row);
+    lv_label_set_text(label_layer, "");
+    lv_obj_set_size(label_layer, 110, 20);
+    lv_obj_set_style_text_align(label_layer, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_set_style_text_font(label_layer, &ergohaven_symbols, LV_PART_MAIN);
+
+    label_layout = lv_label_create(bottom_row);
+    lv_label_set_text(label_layout, "");
+    lv_obj_set_size(label_layout, 110, 20);
+    lv_obj_set_style_text_align(label_layout, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_set_style_text_font(label_layout, &ergohaven_symbols, LV_PART_MAIN);
+
+    label_media_title = lv_label_create(screen_hid);
+    lv_label_set_text(label_media_title, "");
+    lv_label_set_long_mode(label_media_title, LV_LABEL_LONG_WRAP);
+    lv_obj_set_width(label_media_title, lv_pct(90));
+    lv_obj_set_style_text_align(label_media_title, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_set_style_text_font(label_media_title, &lv_font_montserrat_28, LV_PART_MAIN);
+    lv_obj_set_style_pad_top(label_media_title, 20, 0);
+    lv_obj_set_style_pad_bottom(label_media_title, 0, 0);
+
+    label_media_artist = lv_label_create(screen_hid);
+    lv_label_set_text(label_media_artist, "");
+    lv_label_set_long_mode(label_media_artist, LV_LABEL_LONG_WRAP);
+    lv_obj_set_width(label_media_artist, lv_pct(90));
+    lv_obj_set_style_text_align(label_media_artist, LV_TEXT_ALIGN_CENTER, 0);
+
+    lv_obj_set_style_pad_top(label_media_artist, 0, 0);
+    lv_obj_set_style_pad_bottom(label_media_artist, 40, 0);
+    lv_obj_set_style_text_color(label_media_artist, lv_palette_main(LV_PALETTE_TEAL), 0);
 }
 
 void init_screen_volume(void) {
@@ -204,25 +258,6 @@ void init_screen_volume(void) {
     lv_obj_align(volume_text_label, LV_ALIGN_BOTTOM_MID, 0, -50);
 }
 
-void init_screen_media(void) {
-    screen_media = lv_obj_create(NULL);
-    lv_obj_add_style(screen_media, &style_screen, 0);
-    use_flex_column(screen_media);
-    lv_obj_set_flex_align(screen_media, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
-
-    label_media_artist = lv_label_create(screen_media);
-    lv_label_set_text(label_media_artist, "N/A");
-    lv_label_set_long_mode(label_media_artist, LV_LABEL_LONG_WRAP);
-    lv_obj_set_width(label_media_artist, lv_pct(90));
-    lv_obj_set_style_text_align(label_media_artist, LV_TEXT_ALIGN_CENTER, 0);
-
-    label_media_title = lv_label_create(screen_media);
-    lv_label_set_text(label_media_title, "N/A");
-    lv_label_set_long_mode(label_media_title, LV_LABEL_LONG_WRAP);
-    lv_obj_set_width(label_media_title, lv_pct(90));
-    lv_obj_set_style_text_align(label_media_title, LV_TEXT_ALIGN_CENTER, 0);
-}
-
 bool display_init_kb(void) {
     display_enabled = false;
     dprint("display_init_kb - start\n");
@@ -241,10 +276,10 @@ bool display_init_kb(void) {
     lv_disp_set_theme(lv_display, lv_theme);
     init_styles();
 
+    init_screen_splash();
     init_screen_layout();
-    init_screen_home();
+    init_screen_hid();
     init_screen_volume();
-    init_screen_media();
     display_enabled = true;
 
     display_process_layer_state(layer_state);
@@ -253,32 +288,50 @@ bool display_init_kb(void) {
     return display_enabled;
 }
 
-void display_process_hid_data(struct hid_data_t *hid_data) {
+bool display_process_hid_data(struct hid_data_t *hid_data) {
+    static uint32_t hid_sync_time = 0;
+    bool            new_hid_data  = false;
+
     dprintf("display_process_hid_data");
     if (hid_data->time_changed) {
         lv_label_set_text_fmt(label_time, "%02d:%02d", hid_data->hours, hid_data->minutes);
-        change_screen_state    = SCREEN_HOME;
+        change_screen_state    = SCREEN_HID;
         hid_data->time_changed = false;
+        new_hid_data           = true;
     }
     if (hid_data->volume_changed) {
-        lv_label_set_text_fmt(label_volume_home, "Vol: %02d%%", hid_data->volume);
         lv_label_set_text_fmt(label_volume_arc, "%02d", hid_data->volume);
         lv_arc_set_value(arc_volume, hid_data->volume);
-        home_screen_timer        = timer_read32();
+        screen_timer             = timer_read32();
         change_screen_state      = SCREEN_VOLUME;
         hid_data->volume_changed = false;
+        new_hid_data             = true;
     }
     if (hid_data->media_artist_changed) {
         lv_label_set_text(label_media_artist, hid_data->media_artist);
-        lv_scr_load(screen_media);
-        change_screen_state            = SCREEN_HOME;
+        change_screen_state            = SCREEN_HID;
         hid_data->media_artist_changed = false;
+        new_hid_data                   = true;
     }
     if (hid_data->media_title_changed) {
         lv_label_set_text(label_media_title, hid_data->media_title);
-        lv_scr_load(screen_media);
-        change_screen_state           = SCREEN_HOME;
+        change_screen_state           = SCREEN_HID;
         hid_data->media_title_changed = false;
+        new_hid_data                  = true;
+    }
+    if (new_hid_data) hid_sync_time = timer_read32();
+    return (hid_sync_time != 0) && timer_elapsed32(hid_sync_time) < 61 * 1000;
+}
+
+void set_layout_label(uint8_t layout) {
+    switch (layout) {
+        case LANG_EN:
+            lv_label_set_text(label_layout, EH_SYMBOL_GLOBE " EN");
+            break;
+
+        case LANG_RU:
+            lv_label_set_text(label_layout, EH_SYMBOL_GLOBE " RU");
+            break;
     }
 }
 
@@ -730,6 +783,9 @@ void display_process_layer_state(uint8_t layer) {
 
     const char *layer_name = get_layer_name(layer);
     lv_label_set_text(label_layer_small, layer_name);
+    char buf[32];
+    sprintf(buf, EH_SYMBOL_LAYER " %s", layer_name);
+    lv_label_set_text(label_layer, buf);
 
     for (int i = 0; i < 15; i++) {
         uint16_t keycode = KC_TRANSPARENT;
@@ -746,21 +802,24 @@ void display_process_layer_state(uint8_t layer) {
 }
 
 void update_screen_state(void) {
-    home_screen_timer = timer_read32();
-    screen_state      = change_screen_state;
+    screen_timer = timer_read32();
+    screen_state = change_screen_state;
     switch (screen_state) {
         case SCREEN_SPLASH:
-        case SCREEN_HOME:
+            lv_scr_load(screen_splash);
             display_turn_on();
-            lv_scr_load(screen_home);
+            break;
+        case SCREEN_HID:
+            lv_scr_load(screen_hid);
+            display_turn_on();
             break;
         case SCREEN_LAYOUT:
-            display_turn_on();
             lv_scr_load(screen_layout);
+            display_turn_on();
             break;
         case SCREEN_VOLUME:
-            display_turn_on();
             lv_scr_load(screen_volume);
+            display_turn_on();
             break;
         case SCREEN_OFF:
             display_turn_off();
@@ -771,8 +830,9 @@ void update_screen_state(void) {
 void display_housekeeping_task(void) {
     if (!display_enabled) return;
 
-    struct hid_data_t *hid_data = get_hid_data();
-    display_process_hid_data(hid_data);
+    struct hid_data_t *hid_data   = get_hid_data();
+    bool               hid_active = display_process_hid_data(hid_data);
+    set_layout_label(get_cur_lang());
 
     static screen_t prev_screen_state;
     if (change_screen_state == SCREEN_VOLUME && change_screen_state != screen_state) {
@@ -780,7 +840,7 @@ void display_housekeeping_task(void) {
     }
 
     if (screen_state == change_screen_state) {
-        uint32_t screen_elapsed   = timer_elapsed32(home_screen_timer);
+        uint32_t screen_elapsed   = timer_elapsed32(screen_timer);
         uint32_t activity_elapsed = last_input_activity_elapsed();
 
         switch (screen_state) {
@@ -791,15 +851,17 @@ void display_housekeeping_task(void) {
                 break;
 
             case SCREEN_LAYOUT:
-                if (screen_elapsed > 30 * 1000) {
-                    change_screen_state = SCREEN_HOME;
+                if (hid_active && screen_elapsed > 10 * 1000) {
+                    change_screen_state = SCREEN_HID;
+                } else if (activity_elapsed > EH_TIMEOUT) {
+                    change_screen_state = SCREEN_OFF;
                 }
                 break;
 
-            case SCREEN_HOME:
-                if (activity_elapsed < 100) {
+            case SCREEN_HID:
+                if (!hid_active || activity_elapsed < 100) {
                     change_screen_state = SCREEN_LAYOUT;
-                } else if (activity_elapsed > 60 * 1000 /*EH_TIMEOUT*/) {
+                } else if (activity_elapsed > EH_TIMEOUT) {
                     change_screen_state = SCREEN_OFF;
                 }
                 break;
@@ -811,7 +873,7 @@ void display_housekeeping_task(void) {
                 break;
 
             case SCREEN_OFF:
-                if (activity_elapsed < 60 * 1000 /*EH_TIMEOUT*/) {
+                if (activity_elapsed < EH_TIMEOUT) {
                     change_screen_state = SCREEN_LAYOUT;
                 }
                 break;

@@ -27,6 +27,9 @@
 #undef LV_FONT_MONTSERRAT_40
 #define LV_FONT_MONTSERRAT_40 1
 
+#undef LV_FONT_MONTSERRAT_48
+#define LV_FONT_MONTSERRAT_48 1
+
 /* disable widgets*/
 #undef LV_USE_ANIMIMG
 #define LV_USE_ANIMIMG 0
