@@ -295,14 +295,12 @@ bool display_process_hid_data(struct hid_data_t *hid_data) {
     dprintf("display_process_hid_data");
     if (hid_data->time_changed) {
         lv_label_set_text_fmt(label_time, "%02d:%02d", hid_data->hours, hid_data->minutes);
-        change_screen_state    = SCREEN_HID;
         hid_data->time_changed = false;
         new_hid_data           = true;
     }
     if (hid_data->volume_changed) {
         lv_label_set_text_fmt(label_volume_arc, "%02d", hid_data->volume);
         lv_arc_set_value(arc_volume, hid_data->volume);
-        screen_timer             = timer_read32();
         change_screen_state      = SCREEN_VOLUME;
         hid_data->volume_changed = false;
         new_hid_data             = true;
@@ -781,6 +779,8 @@ uint16_t get_encoder_keycode(int layer, int encoder, bool clockwise) {
 void display_process_layer_state(uint8_t layer) {
     if (!display_enabled) return;
 
+    change_screen_state = SCREEN_LAYOUT;
+
     const char *layer_name = get_layer_name(layer);
     lv_label_set_text(label_layer_small, layer_name);
     char buf[32];
@@ -851,7 +851,7 @@ void display_housekeeping_task(void) {
                 break;
 
             case SCREEN_LAYOUT:
-                if (hid_active && screen_elapsed > 10 * 1000) {
+                if (hid_active && activity_elapsed > 10 * 1000) {
                     change_screen_state = SCREEN_HID;
                 } else if (activity_elapsed > EH_TIMEOUT) {
                     change_screen_state = SCREEN_OFF;
@@ -859,7 +859,7 @@ void display_housekeeping_task(void) {
                 break;
 
             case SCREEN_HID:
-                if (!hid_active || activity_elapsed < 100) {
+                if (!hid_active) {
                     change_screen_state = SCREEN_LAYOUT;
                 } else if (activity_elapsed > EH_TIMEOUT) {
                     change_screen_state = SCREEN_OFF;
