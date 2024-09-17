@@ -171,26 +171,26 @@ void init_screen_splash(void) {
 
     label_company = lv_label_create(screen_splash);
     lv_label_set_text(label_company, "Ergohaven");
+    lv_obj_set_style_text_color(label_company, lv_palette_main(LV_PALETTE_TEAL), 0);
+    lv_obj_set_style_pad_top(label_company, 10, 0);
 
     label_product = lv_label_create(screen_splash);
     lv_label_set_text(label_product, "M4CR0Pad");
     lv_obj_set_style_text_font(label_product, &lv_font_montserrat_40, LV_PART_MAIN);
-    lv_obj_set_style_text_color(label_product, lv_palette_main(LV_PALETTE_TEAL), 0);
+    lv_obj_set_style_pad_top(label_product, 40, 0);
     lv_obj_set_style_pad_bottom(label_product, 0, 0);
 
     label_subproduct = lv_label_create(screen_splash);
     lv_label_set_long_mode(label_subproduct, LV_LABEL_LONG_WRAP);
-    lv_obj_set_width(label_subproduct, lv_pct(90));
+    lv_obj_set_width(label_subproduct, lv_pct(95));
     lv_obj_set_style_text_align(label_subproduct, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_set_style_pad_top(label_subproduct, 0, 0);
     lv_label_set_text(label_subproduct, "Next-generation universal macropad");
-
-    lv_obj_t *bottom_row = lv_obj_create(screen_splash);
-    lv_obj_add_style(bottom_row, &style_container, 0);
-    use_flex_row(bottom_row);
+    lv_obj_set_style_pad_bottom(label_subproduct, 40, 0);
 
     label_version = lv_label_create(screen_splash);
     lv_label_set_text(label_version, "v" EH_VERSION_STR);
+    lv_obj_set_style_text_color(label_version, lv_palette_main(LV_PALETTE_TEAL), 0);
 }
 
 void init_screen_hid(void) {
