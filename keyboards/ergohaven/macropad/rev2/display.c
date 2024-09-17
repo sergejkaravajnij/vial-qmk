@@ -828,11 +828,12 @@ void display_housekeeping_task(void) {
 
     struct hid_data_t *hid_data   = get_hid_data();
     bool               hid_active = display_process_hid_data(hid_data);
-    set_layout_label(get_cur_lang());
-
-    static screen_t prev_screen_state;
-    if (change_screen_state == SCREEN_VOLUME && change_screen_state != screen_state) {
-        prev_screen_state = screen_state;
+    static uint8_t     prev_lang  = 0;
+    uint8_t            cur_lang   = get_cur_lang();
+    set_layout_label(cur_lang);
+    if (prev_lang != cur_lang) {
+        change_screen_state = SCREEN_HID;
+        prev_lang           = cur_lang;
     }
 
     if (screen_state == change_screen_state) {
@@ -857,14 +858,14 @@ void display_housekeeping_task(void) {
             case SCREEN_HID:
                 if (!hid_active) {
                     change_screen_state = SCREEN_LAYOUT;
-                } else if (activity_elapsed > EH_TIMEOUT) {
+                } else if (activity_elapsed > EH_TIMEOUT && screen_elapsed > 10 * 1000) {
                     change_screen_state = SCREEN_OFF;
                 }
                 break;
 
             case SCREEN_VOLUME:
                 if (screen_elapsed > 2 * 1000) {
-                    change_screen_state = prev_screen_state;
+                    change_screen_state = SCREEN_HID;
                 }
                 break;
 
