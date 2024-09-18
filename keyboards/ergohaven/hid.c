@@ -42,13 +42,13 @@ bool process_raw_hid_data(uint8_t *data, uint8_t length) {
             return true;
 
         case _MEDIA_ARTIST:
-            hid_data.media_artist_changed = true;
             read_string(data, hid_data.media_artist);
+            hid_data.media_artist_changed = true;
             return true;
 
         case _MEDIA_TITLE:
-            hid_data.media_title_changed = true;
             read_string(data, hid_data.media_title);
+            hid_data.media_title_changed = true;
             return true;
 
         default:

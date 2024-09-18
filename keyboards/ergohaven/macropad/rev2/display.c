@@ -84,8 +84,6 @@ static lv_obj_t *label_layer_small;
 static lv_obj_t *arc_volume;
 static lv_obj_t *label_volume_arc;
 
-/* media screen content */
-
 /* public function to be used in keymaps */
 bool is_display_enabled(void) {
     return display_enabled;
@@ -155,12 +153,16 @@ void init_screen_layout(void) {
         lv_obj_set_size(obj, 77, 45);
         lv_obj_set_scrollbar_mode(obj, LV_SCROLLBAR_MODE_OFF);
         lv_obj_add_style(obj, &style_screen, 0);
-        if (i >= 12) lv_obj_set_style_border_opa(obj, 0, 0);
 
         key_labels[i] = lv_label_create(obj);
         lv_obj_center(key_labels[i]);
         lv_obj_set_style_text_font(key_labels[i], &ergohaven_symbols, LV_PART_MAIN);
         lv_obj_set_style_text_align(key_labels[i], LV_TEXT_ALIGN_CENTER, 0);
+
+        if (i >= 12) {
+            lv_obj_set_style_border_opa(obj, 0, 0);
+            lv_obj_set_style_text_color(key_labels[i], lv_palette_main(LV_PALETTE_TEAL), 0);
+        }
     }
 }
 
@@ -197,6 +199,7 @@ void init_screen_hid(void) {
     screen_hid = lv_obj_create(NULL);
     lv_obj_add_style(screen_hid, &style_screen, 0);
     use_flex_column(screen_hid);
+    lv_obj_set_scrollbar_mode(screen_hid, LV_SCROLLBAR_MODE_OFF);
 
     label_time = lv_label_create(screen_hid);
     lv_label_set_text(label_time, "HH:MM");
@@ -295,29 +298,23 @@ bool display_process_hid_data(struct hid_data_t *hid_data) {
     dprintf("display_process_hid_data");
     if (hid_data->time_changed) {
         lv_label_set_text_fmt(label_time, "%02d:%02d", hid_data->hours, hid_data->minutes);
-        change_screen_state    = SCREEN_HID;
         hid_data->time_changed = false;
         new_hid_data           = true;
     }
     if (hid_data->volume_changed) {
         lv_label_set_text_fmt(label_volume_arc, "%02d", hid_data->volume);
         lv_arc_set_value(arc_volume, hid_data->volume);
-        screen_timer             = timer_read32();
         change_screen_state      = SCREEN_VOLUME;
         hid_data->volume_changed = false;
         new_hid_data             = true;
     }
-    if (hid_data->media_artist_changed) {
+    if (hid_data->media_artist_changed && hid_data->media_title_changed) {
         lv_label_set_text(label_media_artist, hid_data->media_artist);
-        change_screen_state            = SCREEN_HID;
-        hid_data->media_artist_changed = false;
-        new_hid_data                   = true;
-    }
-    if (hid_data->media_title_changed) {
         lv_label_set_text(label_media_title, hid_data->media_title);
-        change_screen_state           = SCREEN_HID;
-        hid_data->media_title_changed = false;
-        new_hid_data                  = true;
+        hid_data->media_artist_changed = false;
+        hid_data->media_title_changed  = false;
+        change_screen_state            = SCREEN_HID;
+        new_hid_data                   = true;
     }
     if (new_hid_data) hid_sync_time = timer_read32();
     return (hid_sync_time != 0) && timer_elapsed32(hid_sync_time) < 61 * 1000;
@@ -778,8 +775,12 @@ uint16_t get_encoder_keycode(int layer, int encoder, bool clockwise) {
     return keycode;
 }
 
+static int update_layer_index = 0;
+
 void display_process_layer_state(uint8_t layer) {
     if (!display_enabled) return;
+
+    change_screen_state = SCREEN_LAYOUT;
 
     const char *layer_name = get_layer_name(layer);
     lv_label_set_text(label_layer_small, layer_name);
@@ -787,18 +788,23 @@ void display_process_layer_state(uint8_t layer) {
     sprintf(buf, EH_SYMBOL_LAYER " %s", layer_name);
     lv_label_set_text(label_layer, buf);
 
-    for (int i = 0; i < 15; i++) {
-        uint16_t keycode = KC_TRANSPARENT;
-        if (i < 12)
-            keycode = get_keycode(layer, i / 3 + 1, i % 3);
-        else if (i == 13)
-            keycode = get_keycode(layer, 0, 2);
-        else if (i == 12)
-            keycode = get_encoder_keycode(layer, 0, false);
-        else if (i == 14)
-            keycode = get_encoder_keycode(layer, 0, true);
-        lv_label_set_text(key_labels[i], keycode_to_str(keycode));
-    }
+    update_layer_index = 0;
+}
+
+void update_layer_task(void) {
+    if (update_layer_index >= 15) return;
+    uint8_t  layer   = get_highest_layer(layer_state | default_layer_state);
+    uint16_t keycode = KC_TRANSPARENT;
+    if (update_layer_index < 12)
+        keycode = get_keycode(layer, update_layer_index / 3 + 1, update_layer_index % 3);
+    else if (update_layer_index == 13)
+        keycode = get_keycode(layer, 0, 2);
+    else if (update_layer_index == 12)
+        keycode = get_encoder_keycode(layer, 0, false);
+    else if (update_layer_index == 14)
+        keycode = get_encoder_keycode(layer, 0, true);
+    lv_label_set_text(key_labels[update_layer_index], keycode_to_str(keycode));
+    update_layer_index += 1;
 }
 
 void update_screen_state(void) {
@@ -830,13 +836,16 @@ void update_screen_state(void) {
 void display_housekeeping_task(void) {
     if (!display_enabled) return;
 
+    update_layer_task();
+
     struct hid_data_t *hid_data   = get_hid_data();
     bool               hid_active = display_process_hid_data(hid_data);
-    set_layout_label(get_cur_lang());
-
-    static screen_t prev_screen_state;
-    if (change_screen_state == SCREEN_VOLUME && change_screen_state != screen_state) {
-        prev_screen_state = screen_state;
+    static uint8_t     prev_lang  = 0;
+    uint8_t            cur_lang   = get_cur_lang();
+    set_layout_label(cur_lang);
+    if (prev_lang != cur_lang) {
+        change_screen_state = SCREEN_HID;
+        prev_lang           = cur_lang;
     }
 
     if (screen_state == change_screen_state) {
@@ -851,7 +860,7 @@ void display_housekeeping_task(void) {
                 break;
 
             case SCREEN_LAYOUT:
-                if (hid_active && screen_elapsed > 10 * 1000) {
+                if (hid_active && activity_elapsed > 10 * 1000) {
                     change_screen_state = SCREEN_HID;
                 } else if (activity_elapsed > EH_TIMEOUT) {
                     change_screen_state = SCREEN_OFF;
@@ -859,16 +868,16 @@ void display_housekeeping_task(void) {
                 break;
 
             case SCREEN_HID:
-                if (!hid_active || activity_elapsed < 100) {
+                if (!hid_active) {
                     change_screen_state = SCREEN_LAYOUT;
-                } else if (activity_elapsed > EH_TIMEOUT) {
+                } else if (activity_elapsed > EH_TIMEOUT && screen_elapsed > 10 * 1000) {
                     change_screen_state = SCREEN_OFF;
                 }
                 break;
 
             case SCREEN_VOLUME:
                 if (screen_elapsed > 2 * 1000) {
-                    change_screen_state = prev_screen_state;
+                    change_screen_state = SCREEN_HID;
                 }
                 break;
 
