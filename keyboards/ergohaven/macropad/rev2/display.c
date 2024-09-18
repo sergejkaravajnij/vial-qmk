@@ -84,8 +84,6 @@ static lv_obj_t *label_layer_small;
 static lv_obj_t *arc_volume;
 static lv_obj_t *label_volume_arc;
 
-/* media screen content */
-
 /* public function to be used in keymaps */
 bool is_display_enabled(void) {
     return display_enabled;
@@ -201,6 +199,7 @@ void init_screen_hid(void) {
     screen_hid = lv_obj_create(NULL);
     lv_obj_add_style(screen_hid, &style_screen, 0);
     use_flex_column(screen_hid);
+    lv_obj_set_scrollbar_mode(screen_hid, LV_SCROLLBAR_MODE_OFF);
 
     label_time = lv_label_create(screen_hid);
     lv_label_set_text(label_time, "HH:MM");
