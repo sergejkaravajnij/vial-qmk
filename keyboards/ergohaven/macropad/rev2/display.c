@@ -155,12 +155,16 @@ void init_screen_layout(void) {
         lv_obj_set_size(obj, 77, 45);
         lv_obj_set_scrollbar_mode(obj, LV_SCROLLBAR_MODE_OFF);
         lv_obj_add_style(obj, &style_screen, 0);
-        if (i >= 12) lv_obj_set_style_border_opa(obj, 0, 0);
 
         key_labels[i] = lv_label_create(obj);
         lv_obj_center(key_labels[i]);
         lv_obj_set_style_text_font(key_labels[i], &ergohaven_symbols, LV_PART_MAIN);
         lv_obj_set_style_text_align(key_labels[i], LV_TEXT_ALIGN_CENTER, 0);
+
+        if (i >= 12) {
+            lv_obj_set_style_border_opa(obj, 0, 0);
+            lv_obj_set_style_text_color(key_labels[i], lv_palette_main(LV_PALETTE_TEAL), 0);
+        }
     }
 }
 
