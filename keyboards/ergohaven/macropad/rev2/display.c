@@ -772,6 +772,8 @@ uint16_t get_encoder_keycode(int layer, int encoder, bool clockwise) {
     return keycode;
 }
 
+static int update_layer_index = 0;
+
 void display_process_layer_state(uint8_t layer) {
     if (!display_enabled) return;
 
@@ -783,18 +785,23 @@ void display_process_layer_state(uint8_t layer) {
     sprintf(buf, EH_SYMBOL_LAYER " %s", layer_name);
     lv_label_set_text(label_layer, buf);
 
-    for (int i = 0; i < 15; i++) {
-        uint16_t keycode = KC_TRANSPARENT;
-        if (i < 12)
-            keycode = get_keycode(layer, i / 3 + 1, i % 3);
-        else if (i == 13)
-            keycode = get_keycode(layer, 0, 2);
-        else if (i == 12)
-            keycode = get_encoder_keycode(layer, 0, false);
-        else if (i == 14)
-            keycode = get_encoder_keycode(layer, 0, true);
-        lv_label_set_text(key_labels[i], keycode_to_str(keycode));
-    }
+    update_layer_index = 0;
+}
+
+void update_layer_task(void) {
+    if (update_layer_index >= 15) return;
+    uint8_t  layer   = get_highest_layer(layer_state | default_layer_state);
+    uint16_t keycode = KC_TRANSPARENT;
+    if (update_layer_index < 12)
+        keycode = get_keycode(layer, update_layer_index / 3 + 1, update_layer_index % 3);
+    else if (update_layer_index == 13)
+        keycode = get_keycode(layer, 0, 2);
+    else if (update_layer_index == 12)
+        keycode = get_encoder_keycode(layer, 0, false);
+    else if (update_layer_index == 14)
+        keycode = get_encoder_keycode(layer, 0, true);
+    lv_label_set_text(key_labels[update_layer_index], keycode_to_str(keycode));
+    update_layer_index += 1;
 }
 
 void update_screen_state(void) {
@@ -825,6 +832,8 @@ void update_screen_state(void) {
 
 void display_housekeeping_task(void) {
     if (!display_enabled) return;
+
+    update_layer_task();
 
     struct hid_data_t *hid_data   = get_hid_data();
     bool               hid_active = display_process_hid_data(hid_data);
