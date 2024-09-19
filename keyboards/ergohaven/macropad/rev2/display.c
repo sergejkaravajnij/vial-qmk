@@ -290,13 +290,17 @@ bool display_process_hid_data(struct hid_data_t *hid_data) {
         hid_data->volume_changed = false;
         new_hid_data             = true;
     }
-    if (hid_data->media_artist_changed && hid_data->media_title_changed) {
+    if (hid_data->media_artist_changed) {
         lv_label_set_text(label_media_artist, hid_data->media_artist);
-        lv_label_set_text(label_media_title, hid_data->media_title);
-        hid_data->media_artist_changed = false;
-        hid_data->media_title_changed  = false;
         change_screen_state            = SCREEN_HID;
+        hid_data->media_artist_changed = false;
         new_hid_data                   = true;
+    }
+    if (hid_data->media_title_changed) {
+        lv_label_set_text(label_media_title, hid_data->media_title);
+        change_screen_state           = SCREEN_HID;
+        hid_data->media_title_changed = false;
+        new_hid_data                  = true;
     }
     if (new_hid_data) hid_sync_time = timer_read32();
     return (hid_sync_time != 0) && timer_elapsed32(hid_sync_time) < 61 * 1000;
