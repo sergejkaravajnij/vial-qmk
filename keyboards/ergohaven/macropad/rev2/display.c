@@ -5,7 +5,7 @@
 #include "hid.h"
 #include "ergohaven.h"
 
-LV_FONT_DECLARE(ergohaven_symbols)
+LV_FONT_DECLARE(ergohaven_symbols_20)
 
 #define EH_SYMBOL_VOLUME_MUTE "\xEF\x9A\xA9"
 #define EH_SYMBOL_DIVIDE "\xEF\x94\xA9"
@@ -157,7 +157,7 @@ void init_screen_layout(void) {
 
         key_labels[i] = lv_label_create(obj);
         lv_obj_center(key_labels[i]);
-        lv_obj_set_style_text_font(key_labels[i], &ergohaven_symbols, LV_PART_MAIN);
+        lv_obj_set_style_text_font(key_labels[i], &ergohaven_symbols_20, LV_PART_MAIN);
         lv_obj_set_style_text_align(key_labels[i], LV_TEXT_ALIGN_CENTER, 0);
 
         if (i >= 12) {
@@ -216,13 +216,13 @@ void init_screen_hid(void) {
     lv_label_set_text(label_layer, "");
     lv_obj_set_size(label_layer, 110, 20);
     lv_obj_set_style_text_align(label_layer, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_set_style_text_font(label_layer, &ergohaven_symbols, LV_PART_MAIN);
+    lv_obj_set_style_text_font(label_layer, &ergohaven_symbols_20, LV_PART_MAIN);
 
     label_layout = lv_label_create(bottom_row);
     lv_label_set_text(label_layout, "");
     lv_obj_set_size(label_layout, 110, 20);
     lv_obj_set_style_text_align(label_layout, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_set_style_text_font(label_layout, &ergohaven_symbols, LV_PART_MAIN);
+    lv_obj_set_style_text_font(label_layout, &ergohaven_symbols_20, LV_PART_MAIN);
 
     label_media_title = lv_label_create(screen_hid);
     lv_label_set_text(label_media_title, "");

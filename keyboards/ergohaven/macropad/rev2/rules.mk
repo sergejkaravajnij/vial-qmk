@@ -36,4 +36,4 @@ SRC += keyboards/ergohaven/ergohaven_ruen.c
 SRC += keyboards/ergohaven/hid.c
 SRC += lvgl_helpers.c
 SRC += display.c
-SRC += ergohaven_symbols.c
+SRC += ergohaven_symbols_20.c
