@@ -6,6 +6,7 @@
 #include "ergohaven.h"
 
 LV_FONT_DECLARE(ergohaven_symbols_20)
+LV_FONT_DECLARE(ergohaven_symbols_28)
 
 #define EH_SYMBOL_VOLUME_MUTE "\xEF\x9A\xA9"
 #define EH_SYMBOL_DIVIDE "\xEF\x94\xA9"
@@ -128,7 +129,7 @@ void init_screen_layout(void) {
     lv_obj_set_style_pad_top(label_layer_small, 25, 0);
     lv_obj_set_style_pad_bottom(label_layer_small, 25, 0);
     lv_obj_set_style_text_color(label_layer_small, lv_palette_main(LV_PALETTE_TEAL), 0);
-    lv_obj_set_style_text_font(label_layer_small, &lv_font_montserrat_28, LV_PART_MAIN);
+    lv_obj_set_style_text_font(label_layer_small, &ergohaven_symbols_28, LV_PART_MAIN);
 
     lv_obj_t *cont = lv_obj_create(screen_layout);
     lv_obj_set_size(cont, 232, 250);
@@ -229,7 +230,7 @@ void init_screen_hid(void) {
     lv_label_set_long_mode(label_media_title, LV_LABEL_LONG_WRAP);
     lv_obj_set_width(label_media_title, lv_pct(90));
     lv_obj_set_style_text_align(label_media_title, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_set_style_text_font(label_media_title, &lv_font_montserrat_28, LV_PART_MAIN);
+    lv_obj_set_style_text_font(label_media_title, &ergohaven_symbols_28, LV_PART_MAIN);
     lv_obj_set_style_pad_top(label_media_title, 20, 0);
     lv_obj_set_style_pad_bottom(label_media_title, 0, 0);
 
@@ -784,9 +785,9 @@ void display_process_layer_state(uint8_t layer) {
     change_screen_state = SCREEN_LAYOUT;
 
     const char *layer_name = get_layer_name(layer);
-    lv_label_set_text(label_layer_small, layer_name);
-    char buf[32];
+    char        buf[32];
     sprintf(buf, EH_SYMBOL_LAYER " %s", layer_name);
+    lv_label_set_text(label_layer_small, buf);
     lv_label_set_text(label_layer, buf);
 
     update_layer_index = 0;
