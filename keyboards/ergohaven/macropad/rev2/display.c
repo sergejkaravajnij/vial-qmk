@@ -218,6 +218,7 @@ void init_screen_hid(void) {
     lv_label_set_long_mode(label_media_artist, LV_LABEL_LONG_WRAP);
     lv_obj_set_width(label_media_artist, lv_pct(95));
     lv_obj_set_style_text_align(label_media_artist, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_set_style_text_font(label_media_artist, &ergohaven_symbols_20, LV_PART_MAIN);
 
     lv_obj_set_style_pad_top(label_media_artist, 0, 0);
     lv_obj_set_style_pad_bottom(label_media_artist, 20, 0);
