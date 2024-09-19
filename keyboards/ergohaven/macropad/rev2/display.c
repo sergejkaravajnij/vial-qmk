@@ -7,8 +7,8 @@
 #include "ergohaven.h"
 #include "ergohaven_symbols.h"
 
-LV_FONT_DECLARE(ergohaven_symbols_20)
-LV_FONT_DECLARE(ergohaven_symbols_28)
+LV_FONT_DECLARE(ergohaven_symbols_20);
+LV_FONT_DECLARE(ergohaven_symbols_28);
 
 static uint32_t screen_timer = 0;
 
@@ -177,7 +177,9 @@ void init_screen_splash(void) {
 void init_screen_hid(void) {
     screen_hid = lv_obj_create(NULL);
     lv_obj_add_style(screen_hid, &style_screen, 0);
-    use_flex_column(screen_hid);
+    lv_obj_set_layout(screen_hid, LV_LAYOUT_FLEX);
+    lv_obj_set_flex_flow(screen_hid, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_flex_align(screen_hid, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
     lv_obj_set_scrollbar_mode(screen_hid, LV_SCROLLBAR_MODE_OFF);
 
     label_time = lv_label_create(screen_hid);
@@ -205,20 +207,20 @@ void init_screen_hid(void) {
     label_media_title = lv_label_create(screen_hid);
     lv_label_set_text(label_media_title, "");
     lv_label_set_long_mode(label_media_title, LV_LABEL_LONG_WRAP);
-    lv_obj_set_width(label_media_title, lv_pct(90));
+    lv_obj_set_width(label_media_title, lv_pct(95));
     lv_obj_set_style_text_align(label_media_title, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_set_style_text_font(label_media_title, &ergohaven_symbols_28, LV_PART_MAIN);
-    lv_obj_set_style_pad_top(label_media_title, 20, 0);
+    lv_obj_set_style_pad_top(label_media_title, 10, 0);
     lv_obj_set_style_pad_bottom(label_media_title, 0, 0);
 
     label_media_artist = lv_label_create(screen_hid);
     lv_label_set_text(label_media_artist, "");
     lv_label_set_long_mode(label_media_artist, LV_LABEL_LONG_WRAP);
-    lv_obj_set_width(label_media_artist, lv_pct(90));
+    lv_obj_set_width(label_media_artist, lv_pct(95));
     lv_obj_set_style_text_align(label_media_artist, LV_TEXT_ALIGN_CENTER, 0);
 
     lv_obj_set_style_pad_top(label_media_artist, 0, 0);
-    lv_obj_set_style_pad_bottom(label_media_artist, 40, 0);
+    lv_obj_set_style_pad_bottom(label_media_artist, 20, 0);
     lv_obj_set_style_text_color(label_media_artist, lv_palette_main(LV_PALETTE_TEAL), 0);
 }
 
