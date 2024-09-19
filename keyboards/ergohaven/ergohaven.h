@@ -1,7 +1,7 @@
 #pragma once
 #include "quantum.h"
 
-#define EH_VERSION_STR "3.7.3"
+#define EH_VERSION_STR "3.7.4"
 
 #define _BASE 0
 #define _LOWER 1
