@@ -39,3 +39,4 @@ SRC += keyboards/ergohaven/ergohaven_ruen.c
 SRC += keyboards/ergohaven/ergohaven_symbols_20.c
 SRC += keyboards/ergohaven/ergohaven_symbols_28.c
 SRC += keyboards/ergohaven/hid.c
+SRC += keyboards/ergohaven/ergohaven_logo.c
