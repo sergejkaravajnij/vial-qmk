@@ -217,7 +217,7 @@ void init_screen_volume(void) {
 
     label_volume_arc = lv_label_create(screen_volume);
     lv_label_set_text(label_volume_arc, "00");
-    lv_obj_set_style_text_font(label_volume_arc, &lv_font_montserrat_40, LV_PART_MAIN);
+    lv_obj_set_style_text_font(label_volume_arc, &lv_font_montserrat_48, LV_PART_MAIN);
     lv_obj_center(label_volume_arc);
 
     lv_obj_t *volume_text_label = lv_label_create(screen_volume);

@@ -24,9 +24,6 @@
 #define LV_FONT_DEFAULT &lv_font_montserrat_20
 
 /* add large font */
-#undef LV_FONT_MONTSERRAT_40
-#define LV_FONT_MONTSERRAT_40 1
-
 #undef LV_FONT_MONTSERRAT_48
 #define LV_FONT_MONTSERRAT_48 1
 
