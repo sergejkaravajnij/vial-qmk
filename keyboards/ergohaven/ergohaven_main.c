@@ -75,26 +75,6 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
       return true; // Let QMK send the enter press/release events
 
     case LAYER_NEXT:
-      // Our logic will happen on presses, nothing is done on releases
-      if (!record->event.pressed) {
-        // We've already handled the keycode (doing nothing), let QMK know so no further code is run unnecessarily
-        return false;
-      }
-
-      uint8_t current_layer = get_highest_layer(layer_state);
-
-      // Check if we are within the range, if not quit
-      if (current_layer > LAYER_CYCLE_END || current_layer < LAYER_CYCLE_START) {
-        return false;
-      }
-
-      uint8_t next_layer = current_layer + 1;
-      if (next_layer > LAYER_CYCLE_END) {
-          next_layer = LAYER_CYCLE_START;
-      }
-      layer_move(next_layer);
-      return false;
-
     case LAYER_PREV:
       // Our logic will happen on presses, nothing is done on releases
       if (!record->event.pressed) {
@@ -102,18 +82,22 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
         return false;
       }
 
-      uint8_t this_layer  = get_highest_layer(layer_state);
+      int current_layer = get_highest_layer(layer_state);
 
       // Check if we are within the range, if not quit
-      if (this_layer > LAYER_CYCLE_END || this_layer < LAYER_CYCLE_START) {
+      if (current_layer > LAYER_CYCLE_END || current_layer < LAYER_CYCLE_START) {
         return false;
       }
 
-      uint8_t prev_layer = this_layer - 1;
-      if (prev_layer > LAYER_CYCLE_END) {
-          prev_layer = LAYER_CYCLE_START;
+      int next_layer = keycode == LAYER_NEXT ? current_layer + 1 : current_layer - 1;
+      if (next_layer > LAYER_CYCLE_END) {
+        next_layer = LAYER_CYCLE_START;
       }
-      layer_move(prev_layer);
+      else if (next_layer < LAYER_CYCLE_START) {
+        next_layer = LAYER_CYCLE_END;
+      }
+
+      layer_move(next_layer);
       return false;
 
     case LG_TOGGLE...LG_END:
