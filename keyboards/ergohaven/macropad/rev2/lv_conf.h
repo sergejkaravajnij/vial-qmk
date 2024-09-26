@@ -24,9 +24,6 @@
 #define LV_FONT_DEFAULT &lv_font_montserrat_20
 
 /* add large font */
-#undef LV_FONT_MONTSERRAT_40
-#define LV_FONT_MONTSERRAT_40 1
-
 #undef LV_FONT_MONTSERRAT_48
 #define LV_FONT_MONTSERRAT_48 1
 
@@ -53,6 +50,8 @@
 #define LV_USE_SWITCH 0
 #undef LV_USE_TABLE
 #define LV_USE_TABLE 0
+#undef LV_USE_IMAGE
+#define LV_USE_IMAGE 1
 
 /* disable extra components */
 #undef LV_USE_CHART

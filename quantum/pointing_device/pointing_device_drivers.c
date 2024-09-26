@@ -22,6 +22,7 @@
 #include "wait.h"
 #include "timer.h"
 #include <stddef.h>
+#include <stdlib.h>
 
 #define CONSTRAIN_HID(amt) ((amt) < INT8_MIN ? INT8_MIN : ((amt) > INT8_MAX ? INT8_MAX : (amt)))
 #define CONSTRAIN_HID_XY(amt) ((amt) < XY_REPORT_MIN ? XY_REPORT_MIN : ((amt) > XY_REPORT_MAX ? XY_REPORT_MAX : (amt)))
@@ -199,6 +200,14 @@ report_mouse_t azoteq_iqs5xx_get_report(report_mouse_t mouse_report) {
             if (base_data.number_of_fingers == 1 && !ignore_movement) {
                 temp_report.x = CONSTRAIN_HID_XY(AZOTEQ_IQS5XX_COMBINE_H_L_BYTES(base_data.x.h, base_data.x.l));
                 temp_report.y = CONSTRAIN_HID_XY(AZOTEQ_IQS5XX_COMBINE_H_L_BYTES(base_data.y.h, base_data.y.l));
+                static uint32_t last_fast_move = 0;
+                if (abs(temp_report.x) <= 1 && abs(temp_report.y) <= 1) {
+                    if (timer_elapsed32(last_fast_move) > 200) {
+                        temp_report.x = 0;
+                        temp_report.y = 0;
+                    }
+                } else
+                    last_fast_move = timer_read32();
             }
 
             previous_button_state = temp_report.buttons;

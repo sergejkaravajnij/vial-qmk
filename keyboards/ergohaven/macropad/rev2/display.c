@@ -9,6 +9,7 @@
 
 LV_FONT_DECLARE(ergohaven_symbols_20);
 LV_FONT_DECLARE(ergohaven_symbols_28);
+LV_IMG_DECLARE(ergohaven_logo);
 
 static uint32_t screen_timer = 0;
 
@@ -39,11 +40,6 @@ static lv_obj_t *screen_splash;
 static lv_obj_t *screen_hid;
 static lv_obj_t *screen_layout;
 static lv_obj_t *screen_volume;
-
-/* splash screen content */
-static lv_obj_t *label_company;
-static lv_obj_t *label_product;
-static lv_obj_t *label_subproduct;
 static lv_obj_t *label_version;
 
 /* hid screen content */
@@ -61,6 +57,9 @@ static lv_obj_t *label_layer_small;
 /* volume screen content */
 static lv_obj_t *arc_volume;
 static lv_obj_t *label_volume_arc;
+
+static lv_color_t accent_color_red;
+static lv_color_t accent_color_blue;
 
 /* public function to be used in keymaps */
 bool is_display_enabled(void) {
@@ -87,10 +86,10 @@ void init_styles(void) {
     lv_style_set_pad_left(&style_button, 4);
     lv_style_set_pad_right(&style_button, 4);
     lv_style_set_radius(&style_button, 6);
-    lv_style_set_text_color(&style_button, lv_palette_main(LV_PALETTE_TEAL));
+    lv_style_set_text_color(&style_button, accent_color_blue);
 
     lv_style_init(&style_button_active);
-    lv_style_set_bg_color(&style_button_active, lv_palette_main(LV_PALETTE_TEAL));
+    lv_style_set_bg_color(&style_button_active, accent_color_blue);
     lv_style_set_bg_opa(&style_button_active, LV_OPA_100);
     lv_style_set_text_color(&style_button_active, lv_color_black());
 }
@@ -105,7 +104,7 @@ void init_screen_layout(void) {
     lv_label_set_text(label_layer_small, "layer");
     lv_obj_set_style_pad_top(label_layer_small, 25, 0);
     lv_obj_set_style_pad_bottom(label_layer_small, 25, 0);
-    lv_obj_set_style_text_color(label_layer_small, lv_palette_main(LV_PALETTE_TEAL), 0);
+    lv_obj_set_style_text_color(label_layer_small, accent_color_blue, 0);
     lv_obj_set_style_text_font(label_layer_small, &ergohaven_symbols_28, LV_PART_MAIN);
 
     lv_obj_t *cont = lv_obj_create(screen_layout);
@@ -140,7 +139,7 @@ void init_screen_layout(void) {
 
         if (i >= 12) {
             lv_obj_set_style_border_opa(obj, 0, 0);
-            lv_obj_set_style_text_color(key_labels[i], lv_palette_main(LV_PALETTE_TEAL), 0);
+            lv_obj_set_style_text_color(key_labels[i], accent_color_blue, 0);
         }
     }
 }
@@ -150,28 +149,14 @@ void init_screen_splash(void) {
     lv_obj_add_style(screen_splash, &style_screen, 0);
     use_flex_column(screen_splash);
 
-    label_company = lv_label_create(screen_splash);
-    lv_label_set_text(label_company, "Ergohaven");
-    lv_obj_set_style_text_color(label_company, lv_palette_main(LV_PALETTE_TEAL), 0);
-    lv_obj_set_style_pad_top(label_company, 10, 0);
-
-    label_product = lv_label_create(screen_splash);
-    lv_label_set_text(label_product, "M4CR0Pad");
-    lv_obj_set_style_text_font(label_product, &lv_font_montserrat_40, LV_PART_MAIN);
-    lv_obj_set_style_pad_top(label_product, 40, 0);
-    lv_obj_set_style_pad_bottom(label_product, 0, 0);
-
-    label_subproduct = lv_label_create(screen_splash);
-    lv_label_set_long_mode(label_subproduct, LV_LABEL_LONG_WRAP);
-    lv_obj_set_width(label_subproduct, lv_pct(95));
-    lv_obj_set_style_text_align(label_subproduct, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_set_style_pad_top(label_subproduct, 0, 0);
-    lv_label_set_text(label_subproduct, "Next-generation universal macropad");
-    lv_obj_set_style_pad_bottom(label_subproduct, 40, 0);
+    lv_obj_t *img = lv_img_create(screen_splash);
+    lv_img_set_src(img, &ergohaven_logo);
+    lv_obj_align(img, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_set_style_pad_top(img, 60, 0);
+    lv_obj_set_style_pad_bottom(img, 60, 0);
 
     label_version = lv_label_create(screen_splash);
     lv_label_set_text(label_version, "v" EH_VERSION_STR);
-    lv_obj_set_style_text_color(label_version, lv_palette_main(LV_PALETTE_TEAL), 0);
 }
 
 void init_screen_hid(void) {
@@ -222,7 +207,7 @@ void init_screen_hid(void) {
 
     lv_obj_set_style_pad_top(label_media_artist, 0, 0);
     lv_obj_set_style_pad_bottom(label_media_artist, 20, 0);
-    lv_obj_set_style_text_color(label_media_artist, lv_palette_main(LV_PALETTE_TEAL), 0);
+    lv_obj_set_style_text_color(label_media_artist, accent_color_blue, 0);
 }
 
 void init_screen_volume(void) {
@@ -235,7 +220,7 @@ void init_screen_volume(void) {
 
     label_volume_arc = lv_label_create(screen_volume);
     lv_label_set_text(label_volume_arc, "00");
-    lv_obj_set_style_text_font(label_volume_arc, &lv_font_montserrat_40, LV_PART_MAIN);
+    lv_obj_set_style_text_font(label_volume_arc, &lv_font_montserrat_48, LV_PART_MAIN);
     lv_obj_center(label_volume_arc);
 
     lv_obj_t *volume_text_label = lv_label_create(screen_volume);
@@ -252,12 +237,15 @@ bool display_init_kb(void) {
     display = qp_st7789_make_spi_device(240, 280, LCD_CS_PIN, LCD_DC_PIN, LCD_RST_PIN, 16, 3);
     qp_set_viewport_offsets(display, 0, 20);
 
+    accent_color_red  = lv_color_make(248, 83, 107);
+    accent_color_blue = lv_color_make(84, 189, 191);
+
     if (!qp_init(display, QP_ROTATION_180) || !qp_lvgl_attach(display)) return display_enabled;
 
     dprint("display_init_kb - initialised\n");
 
     lv_disp_t  *lv_display = lv_disp_get_default();
-    lv_theme_t *lv_theme   = lv_theme_default_init(lv_display, lv_palette_main(LV_PALETTE_TEAL), lv_palette_main(LV_PALETTE_BLUE), true, LV_FONT_DEFAULT);
+    lv_theme_t *lv_theme   = lv_theme_default_init(lv_display, accent_color_blue, accent_color_red, true, LV_FONT_DEFAULT);
     lv_disp_set_theme(lv_display, lv_theme);
     init_styles();
 
