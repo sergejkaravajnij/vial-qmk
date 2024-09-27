@@ -3,6 +3,8 @@
 #include "ergohaven_ruen.h"
 #include "hid.h"
 #include "transactions.h"
+#include <string.h>
+#include <ctype.h>
 
 #ifdef OLED_ENABLE
 
@@ -29,7 +31,8 @@ typedef enum {
     OLED_STATUS_MODERN,
     OLED_STATUS_MINIMALISTIC,
     OLED_BONGOCAT,
-    // OLED_MEDIA,
+    OLED_MEDIA_VER,
+    OLED_MEDIA_HOR,
     OLED_DISABLED,
 } oled_mode_t;
 
@@ -59,7 +62,7 @@ oled_rotation_t get_desired_oled_rotation(void) {
     int mode = get_oled_mode();
     switch (mode) {
         case OLED_BONGOCAT:
-            // case OLED_MEDIA:
+        case OLED_MEDIA_HOR:
             return is_keyboard_left() ? OLED_ROTATION_0 : OLED_ROTATION_180;
             break;
 #    ifdef EH_K02
@@ -143,13 +146,6 @@ void render_status_modern(void) {
         sprintf(buf, "W %d", wpm);
     oled_set_cursor(0, 12);
     oled_write_ln(buf, false);
-
-    struct hid_data_t* hid_data = get_hid_data();
-    if (hid_data->time_changed) {
-        sprintf(buf, "%02d:%02d", hid_data->hours, hid_data->minutes);
-        oled_set_cursor(0, 14);
-        oled_write_ln(buf, false);
-    }
 }
 
 void render_status_minimalistic(void) {
@@ -204,25 +200,130 @@ void render_status_minimalistic(void) {
         sprintf(buf, "     ");
     oled_set_cursor(0, 9);
     oled_write_ln(buf, false);
+}
 
-    struct hid_data_t* hid_data = get_hid_data();
+void render_volume_ver(int volume) {
+    // clang-format off
+    const char* vol_str[] = {
+        "\x9B\xC0\xC0\xC0\x9C\0",
+        "\x9B\xC1\xC1\xC1\x9C\0",
+        "\x9B\xC2\xC2\xC2\x9C\0",
+        "\x9B\xC3\xC3\xC3\x9C\0",
+        "\x9B\xC4\xC4\xC4\x9C\0",
+        "\x9B\xC5\xC5\xC5\x9C\0",
+        "\x9B\xC6\xC6\xC6\x9C\0",
+        "\x9B\xC7\xC7\xC7\x9C\0",
+        "\x9B\xC8\xC8\xC8\x9C\0",
+    };
+    // clang-format on
+
+    char buf[6];
+    sprintf(buf, " %2d%%", volume);
+    oled_write(buf, false);
+
+    oled_set_cursor(0, 1);
+    oled_write("\x98\x99\x99\x99\x9A", false);
+    for (int i = 0; i < 10; i++) {
+        int t1 = volume - (9 - i) * 10;
+        int t2 = MIN(MAX(t1, 0), 10);
+        int t3 = (t2 * 8 + 5) / 10;
+        oled_write(vol_str[t3], false);
+    }
+    oled_write("\x9D\x9E\x9E\x9E\x9F", false);
+    oled_write(" VOL ", false);
+}
+
+void render_big_num(int num, char* c0, char* c1, char* c2, char* c3) {
+    *c0 = 0x80 + num * 2;
+    *c1 = 0x81 + num * 2;
+    *c2 = 0xa0 + num * 2;
+    *c3 = 0xa1 + num * 2;
+}
+
+void render_clock_ver(uint8_t hours, uint8_t minutes) {
+    oled_set_cursor(0, 5);
+    char buf[26] = "                         ";
+    render_big_num(hours / 10, buf + 0, buf + 1, buf + 5, buf + 6);
+    render_big_num(hours % 10, buf + 2, buf + 3, buf + 7, buf + 8);
+    render_big_num(minutes / 10, buf + 15, buf + 16, buf + 20, buf + 21);
+    render_big_num(minutes % 10, buf + 17, buf + 18, buf + 22, buf + 23);
+    oled_write(buf, false);
+}
+
+void render_media_ver(void) {
+    struct hid_data_t* hid_data             = get_hid_data();
+    static uint32_t    volume_changed_stamp = 0;
+    static uint32_t    time_changed_stamp   = 0;
+
+    oled_clear();
+    if (hid_data->volume_changed) {
+        volume_changed_stamp     = sync_timer_read32();
+        hid_data->volume_changed = false;
+    }
+
     if (hid_data->time_changed) {
-        sprintf(buf, "%02d:%02d", hid_data->hours, hid_data->minutes);
-        oled_set_cursor(0, 11);
-        oled_write_ln(buf, false);
+        time_changed_stamp     = sync_timer_read32();
+        hid_data->time_changed = false;
+    }
+
+    uint32_t volume_elapsed = timer_elapsed32(volume_changed_stamp);
+    if (volume_elapsed > __UINT32_MAX__ - 1000) volume_elapsed = 0;
+
+    uint32_t time_elapsed = timer_elapsed32(time_changed_stamp);
+    if (time_elapsed > __UINT32_MAX__ - 1000) time_elapsed = 0;
+
+    if (volume_elapsed < 2 * 1000) {
+        render_volume_ver(hid_data->volume);
+    } else if (time_elapsed < 61 * 1000) {
+        render_clock_ver(hid_data->hours, hid_data->minutes);
     }
 }
 
-void render_media(void) {
+void render_media_hor(void) {
     oled_clear();
+
+    const int LINE_LEN = 21;
+
     struct hid_data_t* hid_data = get_hid_data();
     if (hid_data->media_artist_changed || hid_data->media_title_changed) {
-        oled_set_cursor(0, 1);
-        hid_data->media_title[21] = '\0';
-        oled_write_ln(hid_data->media_title, false);
-        oled_set_cursor(0, 3);
-        hid_data->media_artist[21] = '\0';
-        oled_write_ln(hid_data->media_artist, false);
+        char title_buf[LINE_LEN + 1];
+        int  title_len = strlen(hid_data->media_title);
+        int  title_shift     = (LINE_LEN - MIN(title_len, LINE_LEN)) / 2;
+        for (int i = 0; i < LINE_LEN; i++) {
+            if (i < title_shift) {
+                title_buf[i] = ' ';
+                continue;
+            }
+            char c = hid_data->media_title[i - title_shift];
+            if (c == '\0') {
+                title_buf[i] = '\0';
+                break;
+            }
+            title_buf[i] = toupper(c);
+        }
+        title_buf[LINE_LEN] = '\0';
+
+        char artist_buf[LINE_LEN + 1];
+        int  artist_len = strlen(hid_data->media_artist);
+        int  artist_shift      = (LINE_LEN - MIN(artist_len, LINE_LEN)) / 2;
+        for (int i = 0; i < LINE_LEN; i++) {
+            if (i < artist_shift) {
+                artist_buf[i] = ' ';
+                continue;
+            }
+            char c = hid_data->media_artist[i - artist_shift];
+            if (c == '\0') {
+                artist_buf[i] = '\0';
+                break;
+            }
+            artist_buf[i] = c;
+        }
+        artist_buf[LINE_LEN] = '\0';
+
+        oled_set_cursor(0, 0);
+        oled_write(title_buf, false);
+        oled_set_cursor(0, 2);
+        oled_write(artist_buf, false);
     }
 }
 
@@ -276,9 +377,13 @@ bool oled_task_kb(void) {
             render_status_minimalistic();
             break;
 
-            // case OLED_MEDIA:
-            //     render_media();
-            //     break;
+        case OLED_MEDIA_HOR:
+            render_media_hor();
+            break;
+
+        case OLED_MEDIA_VER:
+            render_media_ver();
+            break;
 
         case OLED_SPLASH:
             ergohaven_dark_draw();
@@ -312,9 +417,9 @@ void housekeeping_task_oled(void) {
         // Interact with slave every 500ms
         static uint32_t last_sync = 0;
         if (timer_elapsed32(last_sync) > 500) {
-            vial_config.lang = get_oled_lang();
-            vial_config.mac  = get_oled_mac();
-            vial_config.caps_word  = get_oled_caps_word();
+            vial_config.lang      = get_oled_lang();
+            vial_config.mac       = get_oled_mac();
+            vial_config.caps_word = get_oled_caps_word();
             if (transaction_rpc_send(RPC_SYNC_CONFIG, sizeof(vial_config_t), &vial_config)) {
                 last_sync = timer_read32();
             }

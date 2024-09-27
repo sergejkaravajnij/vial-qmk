@@ -10,23 +10,27 @@
   "layouts": {
     "labels": [
         [
-          "OLED Master",
-          "Status (classic)",
-          "Splash screen",
-          "Status (modern)",
-          "Status (minimalistic)",
-          "Bongo cat",
-          "Disabled"
-        ],
-        [
-          "OLED Slave",
-          "Splash screen",
-          "Status (classic)",
-          "Status (modern)",
-          "Status (minimalistic)",
-          "Bongo cat",
-          "Disabled"
-        ]
+            "OLED Master",
+            "Status (classic)",
+            "Splash screen",
+            "Status (modern)",
+            "Status (minimalistic)",
+            "Bongo cat",
+            "Clock & Volume (qmk-hid-host)",
+            "Media (qmk-hid-host)",
+            "Disabled"
+          ],
+          [
+            "OLED Slave",
+            "Splash screen",
+            "Status (classic)",
+            "Status (modern)",
+            "Status (minimalistic)",
+            "Bongo cat",
+            "Clock & Volume (qmk-hid-host)",
+            "Media (qmk-hid-host)",
+            "Disabled"
+          ]
       ],
         "keymap":[
             [{"c":"#aaaaaa","x":3},"0,3",{"x":7.25},"5,2"],

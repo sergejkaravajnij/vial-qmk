@@ -19,6 +19,8 @@
         "Status (modern)",
         "Status (minimalistic)",
         "Bongo cat",
+        "Clock & Volume (qmk-hid-host)",
+        "Media (qmk-hid-host)",
         "Disabled"
       ],
       [
@@ -28,6 +30,8 @@
         "Status (modern)",
         "Status (minimalistic)",
         "Bongo cat",
+        "Clock & Volume (qmk-hid-host)",
+        "Media (qmk-hid-host)",
         "Disabled"
       ]
     ],
