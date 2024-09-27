@@ -277,6 +277,7 @@ bool display_process_hid_data(struct hid_data_t *hid_data) {
         change_screen_state      = SCREEN_VOLUME;
         hid_data->volume_changed = false;
         new_hid_data             = true;
+        screen_timer             = timer_read32();
     }
     if (hid_data->media_artist_changed) {
         lv_label_set_text(label_media_artist, hid_data->media_artist);
