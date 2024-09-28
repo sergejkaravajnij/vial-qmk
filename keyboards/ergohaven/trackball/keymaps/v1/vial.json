@@ -7,6 +7,12 @@
     "layouts": {
         "labels": [
             [
+                "Mode",
+                "NumLock - Scroll, ScrollLock - Sniper",
+                "NumLock - Sniper, ScrollLock - Scroll",
+                "NumLock - Text, ScrollLock - Scroll"
+            ],
+            [
                 "Orientation",
                 "0°",
                 "90°",
