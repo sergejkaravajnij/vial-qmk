@@ -11,12 +11,16 @@ static bool sniper_enabled = false;
 static int32_t scroll_accumulated_h = 0;
 static int32_t scroll_accumulated_v = 0;
 
+static uint8_t orientation;
+typedef enum { ROT_0, ROT_90, ROT_180, ROT_270 } orientation_t;
+
 typedef union {
     uint32_t raw;
     struct {
         uint8_t scroll_mode : 3;
         uint8_t sniper_mode : 1;
         uint8_t dpi_mode : 4;
+        uint8_t orientation : 2;
     };
 } vial_config_t;
 
@@ -67,23 +71,53 @@ void via_set_layout_options_kb(uint32_t value) {
     vial_config.raw = value;
     pointing_device_set_cpi(get_dpi(vial_config.dpi_mode));
     scroll_divisor_x = scroll_divisor_y = get_scroll_div(vial_config.scroll_mode);
+
+    orientation = vial_config.orientation;
 }
 
-report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
+report_mouse_t pointing_device_task_user(report_mouse_t mrpt) {
     if (scroll_enabled) {
-        scroll_accumulated_h += mouse_report.x;
-        scroll_accumulated_v -= mouse_report.y;
+        scroll_accumulated_h += mrpt.x;
+        scroll_accumulated_v -= mrpt.y;
 
-        mouse_report.h = scroll_accumulated_h / scroll_divisor_x;
-        mouse_report.v = scroll_accumulated_v / scroll_divisor_y;
+        mrpt.h = scroll_accumulated_h / scroll_divisor_x;
+        mrpt.v = scroll_accumulated_v / scroll_divisor_y;
 
-        scroll_accumulated_h -= mouse_report.h * scroll_divisor_x;
-        scroll_accumulated_v -= mouse_report.v * scroll_divisor_y;
+        scroll_accumulated_h -= mrpt.h * scroll_divisor_x;
+        scroll_accumulated_v -= mrpt.v * scroll_divisor_y;
 
-        mouse_report.x = 0;
-        mouse_report.y = 0;
+        mrpt.x = 0;
+        mrpt.y = 0;
     }
-    return mouse_report;
+
+    switch (orientation) {
+        int8_t t;
+        case ROT_0:
+            break;
+        case ROT_270:
+            t      = mrpt.x;
+            mrpt.x = mrpt.y;
+            mrpt.y = -t;
+            t      = mrpt.v;
+            mrpt.v = mrpt.h;
+            mrpt.h = -t;
+            break;
+        case ROT_180:
+            mrpt.x = -mrpt.x;
+            mrpt.y = -mrpt.y;
+            mrpt.h = -mrpt.h;
+            mrpt.v = -mrpt.v;
+            break;
+        case ROT_90:
+            t      = mrpt.x;
+            mrpt.x = -mrpt.y;
+            mrpt.y = t;
+            t      = mrpt.v;
+            mrpt.v = -mrpt.h;
+            mrpt.h = t;
+            break;
+    }
+    return mrpt;
 }
 
 bool led_update_user(led_t led_state) {
