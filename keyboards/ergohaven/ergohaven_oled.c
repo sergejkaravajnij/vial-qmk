@@ -245,8 +245,8 @@ void render_clock_ver(uint8_t hours, uint8_t minutes) {
     char buf[26] = "                         ";
     render_big_num(hours / 10, buf + 0, buf + 1, buf + 5, buf + 6);
     render_big_num(hours % 10, buf + 2, buf + 3, buf + 7, buf + 8);
-    render_big_num(minutes / 10, buf + 15, buf + 16, buf + 20, buf + 21);
-    render_big_num(minutes % 10, buf + 17, buf + 18, buf + 22, buf + 23);
+    render_big_num(minutes / 10, buf + 16, buf + 17, buf + 21, buf + 22);
+    render_big_num(minutes % 10, buf + 18, buf + 19, buf + 23, buf + 24);
     oled_write(buf, false);
 }
 
