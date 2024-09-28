@@ -369,6 +369,14 @@ const char *special_keycode_to_str(uint16_t keycode) {
         case QK_TAP_DANCE ... QK_TAP_DANCE_MAX:
             sprintf(buf, "TD%d", keycode - QK_TAP_DANCE);
             return buf;
+        case C(KC_Z):
+            return EH_SYMBOL_ROTATE_LEFT "\nCtl Z";
+        case C(KC_X):
+            return LV_SYMBOL_CUT "\nCtl X";
+        case C(KC_C):
+            return LV_SYMBOL_COPY "\nCtl C";
+        case C(KC_V):
+            return LV_SYMBOL_PASTE "\nCtl V";
         default:
             return "";
     }

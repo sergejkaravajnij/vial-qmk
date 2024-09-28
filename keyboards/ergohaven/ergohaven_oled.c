@@ -245,50 +245,42 @@ void render_clock_ver(uint8_t hours, uint8_t minutes) {
     char buf[26] = "                         ";
     render_big_num(hours / 10, buf + 0, buf + 1, buf + 5, buf + 6);
     render_big_num(hours % 10, buf + 2, buf + 3, buf + 7, buf + 8);
-    render_big_num(minutes / 10, buf + 15, buf + 16, buf + 20, buf + 21);
-    render_big_num(minutes % 10, buf + 17, buf + 18, buf + 22, buf + 23);
+    render_big_num(minutes / 10, buf + 16, buf + 17, buf + 21, buf + 22);
+    render_big_num(minutes % 10, buf + 18, buf + 19, buf + 23, buf + 24);
     oled_write(buf, false);
 }
 
 void render_media_ver(void) {
-    struct hid_data_t* hid_data             = get_hid_data();
-    static uint32_t    volume_changed_stamp = 0;
-    static uint32_t    time_changed_stamp   = 0;
+    static uint32_t volume_changed_stamp = 0;
+    static uint32_t time_changed_stamp   = 0;
 
-    oled_clear();
+    struct hid_data_t* hid_data = get_hid_data();
     if (hid_data->volume_changed) {
-        volume_changed_stamp     = sync_timer_read32();
+        volume_changed_stamp     = timer_read32();
         hid_data->volume_changed = false;
     }
 
     if (hid_data->time_changed) {
-        time_changed_stamp     = sync_timer_read32();
+        time_changed_stamp     = timer_read32();
         hid_data->time_changed = false;
     }
 
-    uint32_t volume_elapsed = timer_elapsed32(volume_changed_stamp);
-    if (volume_elapsed > __UINT32_MAX__ - 1000) volume_elapsed = 0;
-
-    uint32_t time_elapsed = timer_elapsed32(time_changed_stamp);
-    if (time_elapsed > __UINT32_MAX__ - 1000) time_elapsed = 0;
-
-    if (volume_elapsed < 2 * 1000) {
+    oled_clear();
+    if (timer_elapsed32(volume_changed_stamp) < 2 * 1000) {
         render_volume_ver(hid_data->volume);
-    } else if (time_elapsed < 61 * 1000) {
+    } else if (timer_elapsed32(time_changed_stamp) < 61 * 1000) {
         render_clock_ver(hid_data->hours, hid_data->minutes);
     }
 }
 
 void render_media_hor(void) {
-    oled_clear();
-
     const int LINE_LEN = 21;
 
     struct hid_data_t* hid_data = get_hid_data();
     if (hid_data->media_artist_changed || hid_data->media_title_changed) {
         char title_buf[LINE_LEN + 1];
-        int  title_len = strlen(hid_data->media_title);
-        int  title_shift     = (LINE_LEN - MIN(title_len, LINE_LEN)) / 2;
+        int  title_len   = strlen(hid_data->media_title);
+        int  title_shift = (LINE_LEN - MIN(title_len, LINE_LEN)) / 2;
         for (int i = 0; i < LINE_LEN; i++) {
             if (i < title_shift) {
                 title_buf[i] = ' ';
@@ -303,9 +295,11 @@ void render_media_hor(void) {
         }
         title_buf[LINE_LEN] = '\0';
 
+        hid_data->media_title_changed = false;
+
         char artist_buf[LINE_LEN + 1];
-        int  artist_len = strlen(hid_data->media_artist);
-        int  artist_shift      = (LINE_LEN - MIN(artist_len, LINE_LEN)) / 2;
+        int  artist_len   = strlen(hid_data->media_artist);
+        int  artist_shift = (LINE_LEN - MIN(artist_len, LINE_LEN)) / 2;
         for (int i = 0; i < LINE_LEN; i++) {
             if (i < artist_shift) {
                 artist_buf[i] = ' ';
@@ -320,6 +314,9 @@ void render_media_hor(void) {
         }
         artist_buf[LINE_LEN] = '\0';
 
+        hid_data->media_artist_changed = false;
+
+        oled_clear();
         oled_set_cursor(0, 0);
         oled_write(title_buf, false);
         oled_set_cursor(0, 2);
