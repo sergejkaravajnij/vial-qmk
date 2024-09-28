@@ -295,6 +295,8 @@ void render_media_hor(void) {
         }
         title_buf[LINE_LEN] = '\0';
 
+        hid_data->media_title_changed = false;
+
         char artist_buf[LINE_LEN + 1];
         int  artist_len   = strlen(hid_data->media_artist);
         int  artist_shift = (LINE_LEN - MIN(artist_len, LINE_LEN)) / 2;
@@ -311,6 +313,8 @@ void render_media_hor(void) {
             artist_buf[i] = c;
         }
         artist_buf[LINE_LEN] = '\0';
+
+        hid_data->media_artist_changed = false;
 
         oled_clear();
         oled_set_cursor(0, 0);
