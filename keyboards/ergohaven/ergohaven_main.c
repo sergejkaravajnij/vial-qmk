@@ -1,7 +1,7 @@
 #include "ergohaven.h"
 #include "ergohaven_ruen.h"
-#include "ergohaven_rgb.h"
 #include "ergohaven_oled.h"
+#include "ergohaven_rgb.h"
 #include "hid.h"
 
 typedef union {
@@ -166,7 +166,7 @@ void keyboard_post_init_kb(void) {
 layer_state_t default_layer_state_set_kb(layer_state_t state) {
     state = default_layer_state_set_user(state);
 #ifdef RGBLIGHT_ENABLE
-    default_layer_state_set_rgb(state);
+    layer_state_set_rgb(state);
 #endif
     return state;
 }
