@@ -179,7 +179,7 @@ layer_state_t layer_state_set_kb(layer_state_t state) {
 
 void housekeeping_task_kb(void) {
 #if defined(OLED_ENABLE) && defined(SPLIT_KEYBOARD)
-    housekeeping_task_oled();
+    housekeeping_task_split_oled();
 #endif
     housekeeping_task_ruen();
     housekeeping_task_user();
