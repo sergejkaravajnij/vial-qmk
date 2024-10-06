@@ -269,5 +269,5 @@ void display_housekeeping_task(void) {
     toggle_state(label_caps, LV_STATE_PRESSED, led_state.caps_lock || get_caps_word());
     toggle_state(label_num, LV_STATE_PRESSED, led_state.num_lock);
 
-    display_process_layer_state(get_highest_layer(layer_state));
+    display_process_layer_state(get_current_layer());
 }

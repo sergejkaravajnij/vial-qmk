@@ -1,7 +1,7 @@
 #pragma once
 #include "quantum.h"
 
-#define EH_VERSION_STR "3.7.7"
+#define EH_VERSION_STR "3.7.8"
 
 #define _BASE 0
 #define _LOWER 1
@@ -62,6 +62,8 @@ enum custom_keycodes {
 #define LAYER_CYCLE_START 0
 // Last layer on the cycle
 #define LAYER_CYCLE_END   15
+
+uint8_t get_current_layer(void);
 
 const char* layer_name(int layer);
 

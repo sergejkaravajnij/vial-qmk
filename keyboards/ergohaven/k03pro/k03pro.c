@@ -140,7 +140,7 @@ void housekeeping_task_user(void) {
             }
         }
     }
-    layer_state_set_rgb(layer_state);
+    layer_state_set_rgb(layer_state | default_layer_state);
 }
 
 report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {

@@ -6,9 +6,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#ifdef OLED_ENABLE
-
-#    include "bongocat.c"
+#include "bongocat.c"
 
 typedef union {
     uint32_t raw;
@@ -65,10 +63,10 @@ oled_rotation_t get_desired_oled_rotation(void) {
         case OLED_MEDIA_HOR:
             return is_keyboard_left() ? OLED_ROTATION_0 : OLED_ROTATION_180;
             break;
-#    ifdef EH_K02
+#ifdef EH_K02
         case OLED_SPLASH:
             return OLED_ROTATION_180;
-#    endif
+#endif
         default:
             return OLED_ROTATION_270;
     }
@@ -105,7 +103,7 @@ void render_status_classic(void) {
     oled_set_cursor(0, 10);
     oled_write_P(PSTR("LAYER"), false);
     oled_set_cursor(0, 12);
-    oled_write_P(PSTR(layer_name(get_highest_layer(layer_state))), false);
+    oled_write_P(PSTR(layer_name(get_current_layer())), false);
 
     oled_set_cursor(0, 15);
     bool caps = host_keyboard_led_state().caps_lock || get_oled_caps_word();
@@ -114,7 +112,7 @@ void render_status_classic(void) {
 
 void render_status_modern(void) {
     oled_clear();
-    oled_write_ln(layer_upper_name(get_highest_layer(layer_state)), false);
+    oled_write_ln(layer_upper_name(get_current_layer()), false);
     oled_set_cursor(0, 1);
     if (get_oled_mac())
         oled_write_P(PSTR("   \01\02   \03\04"), false);
@@ -150,7 +148,7 @@ void render_status_modern(void) {
 
 void render_status_minimalistic(void) {
     oled_clear();
-    int layer = get_highest_layer(layer_state);
+    int layer = get_current_layer();
     if (layer == 0)
         oled_write_ln("     ", false);
     else
@@ -343,13 +341,13 @@ bool oled_task_kb(void) {
     uint32_t activity_elapsed = MIN(last_input_activity_elapsed(), //
                                     sync_timer_elapsed32(last_layout_options_time));
 
-#    ifdef RGBLIGHT_ENABLE
+#ifdef RGBLIGHT_ENABLE
     if (activity_elapsed > EH_TIMEOUT) {
         rgblight_suspend();
     } else {
         rgblight_wakeup();
     }
-#    endif
+#endif
 
     if (activity_elapsed > EH_TIMEOUT || get_oled_mode() == OLED_DISABLED) {
         oled_off();
@@ -409,7 +407,7 @@ void keyboard_post_init_user(void) {
     transaction_register_rpc(RPC_SYNC_CONFIG, sync_config);
 }
 
-void housekeeping_task_oled(void) {
+void housekeeping_task_split_oled(void) {
     if (is_keyboard_master()) {
         // Interact with slave every 500ms
         static uint32_t last_sync = 0;
@@ -423,5 +421,3 @@ void housekeeping_task_oled(void) {
         }
     }
 }
-
-#endif

@@ -9,3 +9,4 @@ RAW_ENABLE = yes
 
 SRC += lvgl_helpers.c \
 	   display.c
+SRC += keyboards/ergohaven/ergohaven_rgb.c

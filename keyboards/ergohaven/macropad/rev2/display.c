@@ -349,7 +349,7 @@ void display_process_layer_state(uint8_t layer) {
 
 void update_layer_task(void) {
     if (update_layer_index >= 15) return;
-    uint8_t  layer   = get_highest_layer(layer_state | default_layer_state);
+    uint8_t  layer   = get_current_layer();
     uint16_t keycode = KC_TRANSPARENT;
     if (update_layer_index < 12)
         keycode = get_keycode(layer, update_layer_index / 3 + 1, update_layer_index % 3);
