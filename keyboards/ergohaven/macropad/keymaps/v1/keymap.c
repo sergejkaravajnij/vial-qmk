@@ -102,7 +102,7 @@ void render_layer_state(void) {
     oled_set_cursor(0, 2);
     oled_write_ln_P(PSTR("lvl:"), false);
     // oled_write_P(PSTR("\n"), false);
-    switch (get_highest_layer(layer_state)) {
+    switch (get_current_layer()) {
         case _BASE:
             oled_write_P(PSTR("ZERO\n"), false);
             break;

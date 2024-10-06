@@ -105,7 +105,7 @@ void render_status_classic(void) {
     oled_set_cursor(0, 10);
     oled_write_P(PSTR("LAYER"), false);
     oled_set_cursor(0, 12);
-    oled_write_P(PSTR(layer_name(get_highest_layer(layer_state))), false);
+    oled_write_P(PSTR(layer_name(get_current_layer())), false);
 
     oled_set_cursor(0, 15);
     bool caps = host_keyboard_led_state().caps_lock || get_oled_caps_word();
@@ -114,7 +114,7 @@ void render_status_classic(void) {
 
 void render_status_modern(void) {
     oled_clear();
-    oled_write_ln(layer_upper_name(get_highest_layer(layer_state)), false);
+    oled_write_ln(layer_upper_name(get_current_layer()), false);
     oled_set_cursor(0, 1);
     if (get_oled_mac())
         oled_write_P(PSTR("   \01\02   \03\04"), false);
@@ -150,7 +150,7 @@ void render_status_modern(void) {
 
 void render_status_minimalistic(void) {
     oled_clear();
-    int layer = get_highest_layer(layer_state);
+    int layer = get_current_layer();
     if (layer == 0)
         oled_write_ln("     ", false);
     else
