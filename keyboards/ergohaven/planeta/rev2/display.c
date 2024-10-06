@@ -227,6 +227,7 @@ void display_process_hid_data(struct hid_data_t *hid_data) {
 }
 
 void display_process_layer_state(uint8_t layer) {
+    if (!is_display_enabled()) return;
     lv_label_set_text(label_layer, layer_upper_name(layer));
 }
 
