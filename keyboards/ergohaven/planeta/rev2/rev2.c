@@ -1,4 +1,5 @@
 #include "display.h"
+#include "ergohaven.h"
 
 
 void housekeeping_task_user(void) {
