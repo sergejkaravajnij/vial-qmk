@@ -1,6 +1,6 @@
 {
     "manufacturer": "Ergohaven",
-    "keyboard_name": "K:03 Pro",
+    "keyboard_name": "K:03 PRO 65mm",
     "maintainer": "Ergohaven",
     "bootloader": "rp2040",
     "diode_direction": "COL2ROW",
@@ -12,7 +12,7 @@
     "url": "https://ergohaven.xyz",
     "usb": {
         "vid": "0xE126",
-        "pid": "0x00A0",
+        "pid": "0x00A1",
         "device_version": "1.0.0"
     },
     "rgb_matrix": {
