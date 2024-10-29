@@ -179,6 +179,18 @@ layer_state_t layer_state_set_kb(layer_state_t state) {
 }
 
 void housekeeping_task_kb(void) {
+    uint32_t activity_elapsed = last_input_activity_elapsed();
+
+    if (activity_elapsed > EH_TIMEOUT) {
+#ifdef RGBLIGHT_ENABLE
+        rgblight_suspend();
+#endif
+    } else {
+#ifdef RGBLIGHT_ENABLE
+        rgblight_wakeup();
+#endif
+    }
+
 #if defined(OLED_ENABLE) && defined(SPLIT_KEYBOARD)
     housekeeping_task_split_oled();
 #endif
@@ -190,15 +202,12 @@ void suspend_power_down_kb(void) {
 #ifdef EH_HAS_DISPLAY
     display_turn_off();
 #endif
-
 #ifdef RGBLIGHT_ENABLE
     rgblight_suspend();
 #endif
-
 #ifdef OLED_ENABLE
     oled_off();
 #endif
-
     suspend_power_down_user();
 }
 
@@ -206,15 +215,12 @@ void suspend_wakeup_init_kb(void) {
 #ifdef EH_HAS_DISPLAY
     display_turn_on();
 #endif
-
 #ifdef RGBLIGHT_ENABLE
     rgblight_wakeup();
 #endif
-
 #ifdef OLED_ENABLE
     oled_on();
 #endif
-
     suspend_wakeup_init_user();
 }
 

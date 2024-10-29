@@ -88,9 +88,6 @@ void display_turn_on(void) {
         gpio_write_pin_high(EH_DISPLAY_BACKLIGHT_PIN);
         qp_power(display, true);
         is_display_on = true;
-#ifdef RGBLIGHT_ENABLE
-        rgblight_wakeup();
-#endif
     }
 }
 
@@ -99,9 +96,6 @@ void display_turn_off(void) {
         is_display_on = false;
         qp_power(display, false);
         gpio_write_pin_low(EH_DISPLAY_BACKLIGHT_PIN);
-#ifdef RGBLIGHT_ENABLE
-        rgblight_suspend();
-#endif
     }
 }
 
