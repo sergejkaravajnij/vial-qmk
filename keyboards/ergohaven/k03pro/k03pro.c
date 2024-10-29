@@ -1,5 +1,6 @@
 #include "display.h"
 #include "transactions.h"
+#include "ergohaven.h"
 #include "ergohaven_ruen.h"
 #include "ergohaven_rgb.h"
 #include "ergohaven_display.h"
@@ -16,7 +17,7 @@ typedef union {
 vial_config_t vial_config;
 
 typedef union {
-    uint32_t raw;
+    uint8_t raw;
     struct {
         uint8_t lang : 1;
         bool    mac : 1;
@@ -27,7 +28,7 @@ typedef union {
 display_config_t display_config;
 
 typedef union {
-    uint32_t raw;
+    uint16_t raw;
     struct {
         uint16_t dpi;
     };
@@ -35,15 +36,15 @@ typedef union {
 
 touch_config_t touch_config;
 
-uint8_t get_lang(void) {
+uint8_t split_get_lang(void) {
     return is_keyboard_master() ? get_cur_lang() : display_config.lang;
 }
 
-uint8_t get_mac(void) {
+bool split_get_mac(void) {
     return is_keyboard_master() ? keymap_config.swap_lctl_lgui : display_config.mac;
 }
 
-uint8_t get_caps_word(void) {
+bool split_get_caps_word(void) {
     return is_keyboard_master() ? is_caps_word_on() : display_config.caps_word;
 }
 
@@ -158,14 +159,14 @@ void housekeeping_task_user(void) {
             static display_config_t slave     = {.raw = 0};
 
             if (last_sync == 0 || timer_elapsed32(last_sync) > 500) {
-                display_config.lang      = get_lang();
-                display_config.mac       = get_mac();
-                display_config.caps_word = get_caps_word();
+                display_config.lang      = split_get_lang();
+                display_config.mac       = split_get_mac();
+                display_config.caps_word = split_get_caps_word();
 
                 if (slave.raw != display_config.raw) {
                     if (transaction_rpc_send(RPC_SYNC_DISPLAY, sizeof(display_config_t), &display_config)) {
                         slave.raw = display_config.raw;
-                        dprintf("sync display settings %lx\n", display_config.raw);
+                        dprintf("sync display settings %x\n", display_config.raw);
                     }
                     last_sync = timer_read32();
                 }

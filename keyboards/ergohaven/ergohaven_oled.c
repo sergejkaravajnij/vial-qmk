@@ -44,15 +44,15 @@ oled_mode_t get_oled_mode(void) {
     return vial_config.oled_slave;
 }
 
-uint8_t get_oled_lang(void) {
+uint8_t split_get_lang(void) {
     return is_keyboard_master() ? get_cur_lang() : vial_config.lang;
 }
 
-uint8_t get_oled_mac(void) {
+bool split_get_mac(void) {
     return is_keyboard_master() ? keymap_config.swap_lctl_lgui : vial_config.mac;
 }
 
-uint8_t get_oled_caps_word(void) {
+bool split_get_caps_word(void) {
     return is_keyboard_master() ? is_caps_word_on() : vial_config.caps_word;
 }
 
@@ -90,7 +90,7 @@ void render_status_classic(void) {
     oled_set_cursor(0, 5);
     oled_write_P("MODE:", false);
     oled_set_cursor(0, 7);
-    if (get_oled_mac()) {
+    if (split_get_mac()) {
         oled_write_P(PSTR("Mac"), false);
     } else {
         oled_write_P(PSTR("Win"), false);
@@ -103,7 +103,7 @@ void render_status_classic(void) {
     oled_write_P(PSTR(layer_name(get_current_layer())), false);
 
     oled_set_cursor(0, 15);
-    bool caps = host_keyboard_led_state().caps_lock || get_oled_caps_word();
+    bool caps = host_keyboard_led_state().caps_lock || split_get_caps_word();
     oled_write_P(PSTR("CPSLK"), caps);
 }
 
@@ -111,17 +111,17 @@ void render_status_modern(void) {
     oled_clear();
     oled_write_ln(layer_upper_name(get_current_layer()), false);
     oled_set_cursor(0, 1);
-    if (get_oled_mac())
+    if (split_get_mac())
         oled_write_P(PSTR("   \01\02   \03\04"), false);
     else
         oled_write_P(PSTR("          "), false);
 
     oled_set_cursor(0, 2);
-    oled_write(get_oled_lang() == LANG_EN ? "EN" : "RU", false);
+    oled_write(split_get_lang() == LANG_EN ? "EN" : "RU", false);
 
     oled_set_cursor(0, 4);
     led_t led_usb_state = host_keyboard_led_state();
-    bool  caps          = led_usb_state.caps_lock || get_oled_caps_word();
+    bool  caps          = led_usb_state.caps_lock || split_get_caps_word();
     oled_write_P(caps ? PSTR("CPS\07\10") : PSTR("CPS\05\06"), false);
     oled_write_P(led_usb_state.num_lock ? PSTR("NUM\07\10") : PSTR("NUM\05\06"), false);
 
@@ -152,19 +152,19 @@ void render_status_minimalistic(void) {
         oled_write_ln(layer_upper_name(layer), false);
 
     oled_set_cursor(0, 1);
-    if (get_oled_mac())
+    if (split_get_mac())
         oled_write_P(PSTR("   \01\02   \03\04"), false);
     else
         oled_write_P(PSTR("          "), false);
 
     oled_set_cursor(0, 2);
-    oled_write(get_oled_lang() == LANG_EN ? "  " : "RU", false);
+    oled_write(split_get_lang() == LANG_EN ? "  " : "RU", false);
 
     led_t led_usb_state = host_keyboard_led_state();
     oled_set_cursor(0, 4);
     if (led_usb_state.caps_lock)
         oled_write_P(PSTR("CAPS"), false);
-    else if (get_oled_caps_word())
+    else if (split_get_caps_word())
         oled_write_P(PSTR("CAPSW"), false);
     else
         oled_write_P(PSTR("     "), false);
@@ -409,9 +409,9 @@ void housekeeping_task_split_oled(void) {
         // Interact with slave every 500ms
         static uint32_t last_sync = 0;
         if (timer_elapsed32(last_sync) > 500) {
-            vial_config.lang      = get_oled_lang();
-            vial_config.mac       = get_oled_mac();
-            vial_config.caps_word = get_oled_caps_word();
+            vial_config.lang      = split_get_lang();
+            vial_config.mac       = split_get_mac();
+            vial_config.caps_word = split_get_caps_word();
             if (transaction_rpc_send(RPC_SYNC_CONFIG, sizeof(vial_config_t), &vial_config)) {
                 last_sync = timer_read32();
             }

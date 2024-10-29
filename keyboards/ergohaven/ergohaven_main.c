@@ -277,3 +277,15 @@ __attribute__((weak)) const char* layer_upper_name(uint8_t layer) {
     else
         return "UNDEF";
 }
+
+__attribute__((weak)) uint8_t split_get_lang(void) {
+    return get_cur_lang();
+}
+
+__attribute__((weak)) bool split_get_mac(void) {
+    return keymap_config.swap_lctl_lgui;
+}
+
+__attribute__((weak)) bool split_get_caps_word(void) {
+    return is_caps_word_on();
+}

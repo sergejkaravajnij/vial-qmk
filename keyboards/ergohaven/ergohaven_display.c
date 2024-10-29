@@ -315,9 +315,9 @@ void screen_home_housekeep(void) {
     static uint8_t prev_mods      = 255;
 
     uint8_t cur_layer = get_current_layer();
-    uint8_t cur_lang  = get_cur_lang(); // work on slave
+    uint8_t cur_lang  = split_get_lang();
     led_t   led_state = host_keyboard_led_state();
-    led_state.caps_lock |= is_caps_word_on(); // work on slave
+    led_state.caps_lock |= split_get_caps_word();
     uint8_t mods = get_mods() | get_oneshot_mods();
 
     if (prev_layer != cur_layer) {
