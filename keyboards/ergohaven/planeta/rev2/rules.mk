@@ -7,6 +7,10 @@ RGBLIGHT_ENABLE = yes
 
 RAW_ENABLE = yes
 
-SRC += lvgl_helpers.c \
-	   display.c
+SRC += keyboards/ergohaven/lvgl_helpers.c
+SRC += display.c
 SRC += keyboards/ergohaven/ergohaven_rgb.c
+SRC += keyboards/ergohaven/ergohaven_display.c
+SRC += keyboards/ergohaven/ergohaven_logo.c
+SRC += keyboards/ergohaven/ergohaven_symbols_20.c
+SRC += keyboards/ergohaven/ergohaven_symbols_28.c
