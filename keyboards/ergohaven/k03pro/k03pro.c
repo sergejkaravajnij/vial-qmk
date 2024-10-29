@@ -215,8 +215,6 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
 }
 
 void keyboard_post_init_user(void) {
-    debug_enable = true;
-
     if (is_display_side()) {
         display_init_kb();
     }
