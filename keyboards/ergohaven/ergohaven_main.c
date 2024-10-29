@@ -2,6 +2,7 @@
 #include "ergohaven_ruen.h"
 #include "ergohaven_oled.h"
 #include "ergohaven_rgb.h"
+#include "ergohaven_display.h"
 #include "hid.h"
 
 typedef union {
@@ -185,6 +186,38 @@ void housekeeping_task_kb(void) {
     housekeeping_task_user();
 }
 
+void suspend_power_down_kb(void) {
+#ifdef EH_HAS_DISPLAY
+    display_turn_off();
+#endif
+
+#ifdef RGBLIGHT_ENABLE
+    rgblight_suspend();
+#endif
+
+#ifdef OLED_ENABLE
+    oled_off();
+#endif
+
+    suspend_power_down_user();
+}
+
+void suspend_wakeup_init_kb(void) {
+#ifdef EH_HAS_DISPLAY
+    display_turn_on();
+#endif
+
+#ifdef RGBLIGHT_ENABLE
+    rgblight_wakeup();
+#endif
+
+#ifdef OLED_ENABLE
+    oled_on();
+#endif
+
+    suspend_wakeup_init_user();
+}
+
 uint8_t get_current_layer(void) {
     return get_highest_layer(layer_state | default_layer_state);
 }
@@ -231,16 +264,28 @@ static const char* PROGMEM LAYER_UPPER_NAME[] = {
     // clang-format on
 };
 
-const char* layer_name(int layer) {
+__attribute__((weak)) const char* layer_name(uint8_t layer) {
     if (layer >= 0 && layer <= 15)
         return LAYER_NAME[layer];
     else
         return "Undef";
 }
 
-const char* layer_upper_name(int layer) {
+__attribute__((weak)) const char* layer_upper_name(uint8_t layer) {
     if (layer >= 0 && layer <= 15)
         return LAYER_UPPER_NAME[layer];
     else
         return "UNDEF";
+}
+
+__attribute__((weak)) uint8_t split_get_lang(void) {
+    return get_cur_lang();
+}
+
+__attribute__((weak)) bool split_get_mac(void) {
+    return keymap_config.swap_lctl_lgui;
+}
+
+__attribute__((weak)) bool split_get_caps_word(void) {
+    return is_caps_word_on();
 }
