@@ -30,7 +30,7 @@ QUANTUM_PAINTER_LVGL_INTEGRATION = yes
 RGBLIGHT_ENABLE = no
 RAW_ENABLE = yes
 
-SRC += display.c
+SRC += display_modes.c
 SRC += screen_layout.c
 SRC += keyboards/ergohaven/lvgl_helpers.c
 SRC += keyboards/ergohaven/ergohaven_keycode_str.c

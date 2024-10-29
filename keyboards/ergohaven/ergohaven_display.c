@@ -198,8 +198,8 @@ void screen_volume_housekeep(void) {
         prev_volume = hid->volume;
         lv_arc_set_value(arc_volume, hid->volume);
         lv_label_set_text_fmt(label_volume_arc, "%02d", hid->volume);
-        hid->volume_changed = false;
     }
+    hid->volume_changed = false;
 }
 
 const eh_screen_t eh_screen_volume = {

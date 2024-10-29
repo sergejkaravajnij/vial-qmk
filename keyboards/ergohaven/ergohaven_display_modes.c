@@ -5,7 +5,6 @@
 #include "ergohaven.h"
 #include "ergohaven_symbols.h"
 #include "ergohaven_display.h"
-#include "k03pro.h"
 
 static uint32_t screen_timer = 0;
 
