@@ -33,7 +33,7 @@ jobs:
       - name: Rename
         run: |
           cd ergohaven_fw/ergohaven_fw
-          rename 's/(rev1_|rev2_)//; s/ergohaven_/'${GITHUB_REF_NAME}'_'/ *.uf2
+          rename 's/(rev\d_)//; s/ergohaven_/'${GITHUB_REF_NAME}'_'/ *.uf2
 
       - name: Create Release
         uses: marvinpinto/action-automatic-releases@latest
