@@ -39,8 +39,8 @@ void display_housekeeping_task(void) {
     bool        hid_active = is_hid_active();
     if (hid_active && hid_data->hid_changed) {
         if (hid_data->volume_changed) {
-            change_screen_state      = SCREEN_VOLUME;
-            screen_timer             = timer_read32();
+            change_screen_state = SCREEN_VOLUME;
+            screen_timer        = timer_read32();
         }
     }
 
@@ -52,7 +52,7 @@ void display_housekeeping_task(void) {
 
         switch (screen_state) {
             case SCREEN_SPLASH:
-                if (screen_elapsed > 2 * 1000) {
+                if (screen_elapsed > EH_DISPLAY_TIMEOUT_SPLASH_SCREEN) {
                     change_screen_state = SCREEN_HOME;
                 }
                 break;
@@ -64,7 +64,7 @@ void display_housekeeping_task(void) {
                 break;
 
             case SCREEN_VOLUME:
-                if (screen_elapsed > 1 * 1000) {
+                if (screen_elapsed > EH_DISPLAY_TIMEOUT_VOLUME_SCREEN) {
                     change_screen_state = SCREEN_HOME;
                 }
                 break;
@@ -78,6 +78,9 @@ void display_housekeeping_task(void) {
     }
 
     if (change_screen_state != screen_state) {
+        bool typing = last_input_activity_elapsed() < 500; // prevent display updates when typing
+        if (typing) return;
+
         dprintf("change screen state %d->%d\n", screen_state, change_screen_state);
         screen_timer = timer_read32();
         screen_state = change_screen_state;
