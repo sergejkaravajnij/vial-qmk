@@ -183,11 +183,11 @@ void housekeeping_task_kb(void) {
 
     if (activity_elapsed > EH_TIMEOUT) {
 #ifdef RGBLIGHT_ENABLE
-        rgblight_suspend();
+        rgb_off();
 #endif
     } else {
 #ifdef RGBLIGHT_ENABLE
-        rgblight_wakeup();
+        rgb_on();
 #endif
     }
 
@@ -203,7 +203,7 @@ void suspend_power_down_kb(void) {
     display_turn_off();
 #endif
 #ifdef RGBLIGHT_ENABLE
-    rgblight_suspend();
+    rgb_off();
 #endif
 #ifdef OLED_ENABLE
     oled_off();
@@ -216,7 +216,7 @@ void suspend_wakeup_init_kb(void) {
     display_turn_on();
 #endif
 #ifdef RGBLIGHT_ENABLE
-    rgblight_wakeup();
+    rgb_on();
 #endif
 #ifdef OLED_ENABLE
     oled_on();

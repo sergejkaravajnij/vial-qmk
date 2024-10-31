@@ -35,3 +35,19 @@ void layer_state_set_rgb(layer_state_t state) {
     for (int layer = 0; layer <= _FIFTEEN; ++layer)
         rgblight_set_layer_state(layer, layer_state_cmp(state, layer));
 }
+
+static bool is_rgb_on = false;
+
+void rgb_on(void) {
+    if (!is_rgb_on) {
+        rgblight_wakeup();
+        is_rgb_on = true;
+    }
+}
+
+void rgb_off(void) {
+    if (is_rgb_on) {
+        rgblight_suspend();
+        is_rgb_on = false;
+    }
+}
