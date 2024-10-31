@@ -1,9 +1,11 @@
 #include "ergohaven_display.h"
-#include "ergohaven.h"
-#include "lvgl_helpers.h"
 #include "gpio.h"
+#include "hid.h"
+#include "lvgl_helpers.h"
+#include "qp.h"
 #include "ergohaven_ruen.h"
 #include "ergohaven_symbols.h"
+#include "ergohaven.h"
 
 LV_FONT_DECLARE(ergohaven_symbols_20);
 LV_FONT_DECLARE(ergohaven_symbols_28);
@@ -88,9 +90,6 @@ void display_turn_on(void) {
         gpio_write_pin_high(EH_DISPLAY_BACKLIGHT_PIN);
         qp_power(display, true);
         is_display_on = true;
-#ifdef RGBLIGHT_ENABLE
-        rgblight_wakeup();
-#endif
     }
 }
 
@@ -99,9 +98,6 @@ void display_turn_off(void) {
         is_display_on = false;
         qp_power(display, false);
         gpio_write_pin_low(EH_DISPLAY_BACKLIGHT_PIN);
-#ifdef RGBLIGHT_ENABLE
-        rgblight_suspend();
-#endif
     }
 }
 
@@ -308,17 +304,61 @@ void screen_home_load(void) {
     lv_scr_load(screen_home);
 }
 
+void hide(lv_obj_t *obj) {
+    lv_obj_add_flag(obj, LV_OBJ_FLAG_HIDDEN);
+}
+
+void show(lv_obj_t *obj) {
+    lv_obj_clear_flag(obj, LV_OBJ_FLAG_HIDDEN);
+}
+
 void screen_home_housekeep(void) {
-    static uint8_t prev_layer     = 255;
-    static uint8_t prev_lang      = -1;
-    static led_t   prev_led_state = {.raw = 255};
-    static uint8_t prev_mods      = 255;
+    static uint8_t prev_layer      = 255;
+    static uint8_t prev_lang       = -1;
+    static led_t   prev_led_state  = {.raw = 255};
+    static uint8_t prev_mods       = 255;
+    static bool    prev_show_mods  = false;
+    static bool    prev_hid_active = false;
 
     uint8_t cur_layer = get_current_layer();
     uint8_t cur_lang  = split_get_lang();
     led_t   led_state = host_keyboard_led_state();
     led_state.caps_lock |= split_get_caps_word();
     uint8_t mods = get_mods() | get_oneshot_mods();
+
+    static uint32_t mods_timer = 0;
+    if (mods != 0 || prev_led_state.raw != led_state.raw) {
+        mods_timer = timer_read32();
+    }
+
+    bool show_mods  = timer_elapsed32(mods_timer) < EH_DISPLAY_TIMEOUT_ACTIVITY;
+    bool hid_active = is_hid_active();
+
+    bool typing = last_input_activity_elapsed() < 500; // prevent display updates when typing
+
+    if (prev_hid_active != hid_active || (prev_show_mods != show_mods && hid_active)) {
+        if (typing) return;
+        if (hid_active) {
+            hide(label_product);
+            show(label_time);
+            if (show_mods) {
+                hide(screen_home_media);
+                show(screen_home_mods);
+            } else {
+                hide(screen_home_mods);
+                show(screen_home_media);
+            }
+        } else {
+            hide(label_time);
+            show(label_product);
+            show(screen_home_mods);
+        }
+
+        prev_show_mods  = show_mods;
+        prev_hid_active = hid_active;
+
+        return;
+    }
 
     if (prev_layer != cur_layer) {
         lv_label_set_text(label_layer, get_layer_label(cur_layer));
@@ -330,12 +370,6 @@ void screen_home_housekeep(void) {
         lv_label_set_text(label_layout, get_layout_label(cur_lang));
         prev_lang = cur_lang;
         return;
-    }
-
-    static uint32_t modes_timer = 0;
-
-    if (led_state.raw != prev_led_state.raw || mods != 0) {
-        modes_timer = timer_read32();
     }
 
     if (led_state.raw != prev_led_state.raw) {
@@ -351,39 +385,6 @@ void screen_home_housekeep(void) {
         toggle_state(label_alt, LV_STATE_PRESSED, mods & MOD_MASK_ALT);
         toggle_state(label_gui, LV_STATE_PRESSED, mods & MOD_MASK_GUI);
         prev_mods = mods;
-        return;
-    }
-
-    static bool prev_show_mods = false;
-    bool        show_mods      = modes_timer != 0 && timer_elapsed32(modes_timer) > 2000;
-
-    static bool prev_hid_active = false;
-    bool        hid_active      = is_hid_active();
-
-    if (show_mods != prev_show_mods) {
-        if (show_mods) {
-            lv_obj_add_flag(screen_home_mods, LV_OBJ_FLAG_HIDDEN);
-            if (hid_active) lv_obj_clear_flag(screen_home_media, LV_OBJ_FLAG_HIDDEN);
-        } else {
-            lv_obj_clear_flag(screen_home_mods, LV_OBJ_FLAG_HIDDEN);
-            if (hid_active) lv_obj_add_flag(screen_home_media, LV_OBJ_FLAG_HIDDEN);
-        }
-        prev_show_mods = show_mods;
-        return;
-    }
-
-    if (prev_hid_active != hid_active) {
-        if (hid_active) {
-            lv_obj_clear_flag(label_time, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_add_flag(label_product, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_clear_flag(screen_home_media, LV_OBJ_FLAG_HIDDEN);
-
-        } else {
-            lv_obj_add_flag(label_time, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_clear_flag(label_product, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_add_flag(screen_home_media, LV_OBJ_FLAG_HIDDEN);
-        }
-        prev_hid_active = hid_active;
         return;
     }
 

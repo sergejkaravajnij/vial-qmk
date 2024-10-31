@@ -1,9 +1,12 @@
 #pragma once
 
+#define EH_DISPLAY_TIMEOUT_SPLASH_SCREEN (1500)
+#define EH_DISPLAY_TIMEOUT_VOLUME_SCREEN (1500)
+#define EH_DISPLAY_TIMEOUT_ACTIVITY (10 * 1000)
+
 #ifdef EH_HAS_DISPLAY
 
 #    include "qp.h"
-#    include "hid.h"
 
 extern lv_color_t accent_color_red;
 extern lv_color_t accent_color_blue;
