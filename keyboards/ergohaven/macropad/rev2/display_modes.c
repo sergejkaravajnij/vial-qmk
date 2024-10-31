@@ -30,12 +30,16 @@ void display_init_screens_kb(void) {
     eh_screen_volume.init();
     current_screen      = eh_screen_splash;
     change_screen_state = SCREEN_SPLASH;
+    screen_state        = SCREEN_SPLASH;
+    current_screen.load();
+    display_turn_on();
+    screen_timer = timer_read32();
 }
 
 void display_housekeeping_task(void) {
     if (!is_display_enabled()) return;
 
-    static uint8_t prev_layer = 255;
+    static uint8_t prev_layer = 0;
     uint8_t        layer      = get_current_layer();
     if (layer != prev_layer) {
         prev_layer          = layer;
@@ -45,7 +49,7 @@ void display_housekeeping_task(void) {
 
     hid_data_t *hid_data   = get_hid_data();
     bool        hid_active = is_hid_active();
-    if (hid_data->hid_changed) {
+    if (hid_active && hid_data->hid_changed) {
         if (hid_data->volume_changed) {
             change_screen_state = SCREEN_VOLUME;
             screen_timer        = timer_read32();
@@ -124,6 +128,7 @@ void display_housekeeping_task(void) {
                 break;
         }
         current_screen.load();
+        return;
     }
 
     current_screen.housekeep();
