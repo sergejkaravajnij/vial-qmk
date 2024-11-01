@@ -334,7 +334,10 @@ void screen_home_housekeep(void) {
     bool show_mods  = timer_elapsed32(mods_timer) < EH_DISPLAY_TIMEOUT_ACTIVITY;
     bool hid_active = is_hid_active();
 
-    bool typing = last_input_activity_elapsed() < 500; // prevent display updates when typing
+    uint32_t activity_elapsed = last_input_activity_elapsed();
+    if (activity_elapsed > __UINT32_MAX__ - 1000) // possible overflow on split
+        activity_elapsed = 0;
+    bool typing = activity_elapsed < 500; // prevent display updates when typing
 
     if (prev_hid_active != hid_active || (prev_show_mods != show_mods && hid_active)) {
         if (typing) return;
@@ -390,6 +393,7 @@ void screen_home_housekeep(void) {
 
     hid_data_t *hid = get_hid_data();
     if (hid->hid_changed) {
+        if (typing) return;
         if (hid->time_changed) {
             lv_label_set_text_fmt(label_time, "%02d:%02d", hid->hours, hid->minutes);
             hid->time_changed = false;
