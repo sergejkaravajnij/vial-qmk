@@ -44,11 +44,12 @@ void display_housekeeping_task(void) {
         }
     }
 
+    uint32_t activity_elapsed = last_input_activity_elapsed();
+    if (activity_elapsed > __UINT32_MAX__ - 1000) // possible overflow on split
+        activity_elapsed = 0;
+
     if (screen_state == change_screen_state) {
-        uint32_t screen_elapsed   = timer_elapsed32(screen_timer);
-        uint32_t activity_elapsed = last_input_activity_elapsed();
-        if (activity_elapsed > __UINT32_MAX__ - 1000) // possible overflow on split
-            activity_elapsed = 0;
+        uint32_t screen_elapsed = timer_elapsed32(screen_timer);
 
         switch (screen_state) {
             case SCREEN_SPLASH:
@@ -78,7 +79,7 @@ void display_housekeeping_task(void) {
     }
 
     if (change_screen_state != screen_state) {
-        bool typing = last_input_activity_elapsed() < 500; // prevent display updates when typing
+        bool typing = activity_elapsed < 500; // prevent display updates when typing
         if (typing) return;
 
         dprintf("change screen state %d->%d\n", screen_state, change_screen_state);
