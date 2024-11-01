@@ -210,13 +210,15 @@ static lv_obj_t *screen_home;
 static lv_obj_t *label_product;
 static lv_obj_t *label_time;
 static lv_obj_t *label_layer;
+static lv_obj_t *label_mac;
 static lv_obj_t *label_layout;
 static lv_obj_t *label_shift;
 static lv_obj_t *label_ctrl;
 static lv_obj_t *label_alt;
 static lv_obj_t *label_gui;
-static lv_obj_t *label_caps;
 static lv_obj_t *label_num;
+static lv_obj_t *label_caps;
+static lv_obj_t *label_scroll;
 static lv_obj_t *label_hid_media_artist;
 static lv_obj_t *label_hid_media_title;
 static lv_obj_t *screen_home_mods;
@@ -241,22 +243,26 @@ void screen_home_init(void) {
     lv_label_set_text(label_time, "00:00");
     lv_obj_add_flag(label_time, LV_OBJ_FLAG_HIDDEN);
 
-    lv_obj_t *bottom_row = lv_obj_create(screen_home);
-    lv_obj_add_style(bottom_row, &style_container, 0);
-    use_flex_row(bottom_row);
-    lv_obj_set_pos(bottom_row, 0, 90);
-    lv_obj_set_size(bottom_row, 240, 40);
-
-    label_layer = lv_label_create(bottom_row);
+    label_layer = lv_label_create(screen_home);
     lv_label_set_text(label_layer, "");
+    lv_obj_set_pos(label_layer, 0, 100);
     lv_obj_set_size(label_layer, 110, 20);
-    lv_obj_set_style_text_align(label_layer, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_set_style_text_align(label_layer, LV_TEXT_ALIGN_RIGHT, 0);
     lv_obj_set_style_text_font(label_layer, &ergohaven_symbols_20, LV_PART_MAIN);
 
-    label_layout = lv_label_create(bottom_row);
+    label_mac = lv_label_create(screen_home);
+    lv_label_set_text(label_mac, EH_SYMBOL_MAC);
+    lv_obj_set_pos(label_mac, 110, 100);
+    lv_obj_set_size(label_mac, 46, 20);
+    lv_obj_set_style_text_align(label_mac, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_set_style_text_font(label_mac, &ergohaven_symbols_20, LV_PART_MAIN);
+    toggle_hidden(label_mac, false);
+
+    label_layout = lv_label_create(screen_home);
     lv_label_set_text(label_layout, "");
-    lv_obj_set_size(label_layout, 110, 20);
-    lv_obj_set_style_text_align(label_layout, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_set_pos(label_layout, 160, 100);
+    lv_obj_set_size(label_layout, 80, 20);
+    lv_obj_set_style_text_align(label_layout, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_text_font(label_layout, &ergohaven_symbols_20, LV_PART_MAIN);
 
     screen_home_mods = lv_obj_create(screen_home);
@@ -270,15 +276,16 @@ void screen_home_init(void) {
     label_ctrl  = create_button(screen_home_mods, "CTL", &style_button, &style_button_active);
     label_shift = create_button(screen_home_mods, "SFT", &style_button, &style_button_active);
 
-    label_caps = create_button(screen_home_mods, "CAPS", &style_button, &style_button_active);
-    label_num  = create_button(screen_home_mods, "NUM", &style_button, &style_button_active);
+    label_num    = create_button(screen_home_mods, "NUM", &style_button, &style_button_active);
+    label_caps   = create_button(screen_home_mods, "CAPS", &style_button, &style_button_active);
+    label_scroll = create_button(screen_home_mods, "SCRL", &style_button, &style_button_active);
 
     screen_home_media = lv_obj_create(screen_home);
-    lv_obj_add_flag(screen_home_media, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_style(screen_home_media, &style_container, 0);
+    toggle_hidden(screen_home_media, false);
     use_flex_row(screen_home_media);
-    lv_obj_set_pos(screen_home_media, 0, 110);
-    lv_obj_set_size(screen_home_media, 240, 170);
+    lv_obj_set_pos(screen_home_media, 0, 130);
+    lv_obj_set_size(screen_home_media, 240, 130);
 
     label_hid_media_title = lv_label_create(screen_home_media);
     lv_label_set_text(label_hid_media_title, "");
@@ -286,7 +293,7 @@ void screen_home_init(void) {
     lv_obj_set_width(label_hid_media_title, lv_pct(95));
     lv_obj_set_style_text_align(label_hid_media_title, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_set_style_text_font(label_hid_media_title, &ergohaven_symbols_28, LV_PART_MAIN);
-    lv_obj_set_style_pad_top(label_hid_media_title, 10, 0);
+    lv_obj_set_style_pad_top(label_hid_media_title, 0, 0);
     lv_obj_set_style_pad_bottom(label_hid_media_title, 0, 0);
 
     label_hid_media_artist = lv_label_create(screen_home_media);
@@ -304,27 +311,21 @@ void screen_home_load(void) {
     lv_scr_load(screen_home);
 }
 
-void hide(lv_obj_t *obj) {
-    lv_obj_add_flag(obj, LV_OBJ_FLAG_HIDDEN);
-}
-
-void show(lv_obj_t *obj) {
-    lv_obj_clear_flag(obj, LV_OBJ_FLAG_HIDDEN);
-}
-
 void screen_home_housekeep(void) {
     static uint8_t prev_layer      = 255;
     static uint8_t prev_lang       = -1;
-    static led_t   prev_led_state  = {.raw = 255};
+    static led_t   prev_led_state  = {.raw = 0};
     static uint8_t prev_mods       = 255;
     static bool    prev_show_mods  = false;
     static bool    prev_hid_active = false;
+    static bool    prev_mac        = false;
 
     uint8_t cur_layer = get_current_layer();
     uint8_t cur_lang  = split_get_lang();
     led_t   led_state = host_keyboard_led_state();
     led_state.caps_lock |= split_get_caps_word();
     uint8_t mods = get_mods() | get_oneshot_mods();
+    bool    mac  = split_get_mac();
 
     static uint32_t mods_timer = 0;
     if (mods != 0 || prev_led_state.raw != led_state.raw) {
@@ -341,25 +342,12 @@ void screen_home_housekeep(void) {
 
     if (prev_hid_active != hid_active || (prev_show_mods != show_mods && hid_active)) {
         if (typing) return;
-        if (hid_active) {
-            hide(label_product);
-            show(label_time);
-            if (show_mods) {
-                hide(screen_home_media);
-                show(screen_home_mods);
-            } else {
-                hide(screen_home_mods);
-                show(screen_home_media);
-            }
-        } else {
-            hide(label_time);
-            show(label_product);
-            show(screen_home_mods);
-        }
-
+        toggle_hidden(label_product, !hid_active);
+        toggle_hidden(label_time, hid_active);
+        toggle_hidden(screen_home_mods, !hid_active || show_mods);
+        toggle_hidden(screen_home_media, hid_active && !show_mods);
         prev_show_mods  = show_mods;
         prev_hid_active = hid_active;
-
         return;
     }
 
@@ -375,9 +363,16 @@ void screen_home_housekeep(void) {
         return;
     }
 
+    if (mac != prev_mac) {
+        toggle_hidden(label_mac, mac);
+        prev_mac = mac;
+        return;
+    }
+
     if (led_state.raw != prev_led_state.raw) {
         toggle_state(label_caps, LV_STATE_PRESSED, led_state.caps_lock);
         toggle_state(label_num, LV_STATE_PRESSED, led_state.num_lock);
+        toggle_state(label_scroll, LV_STATE_PRESSED, led_state.scroll_lock);
         prev_led_state.raw = led_state.raw;
         return;
     }
