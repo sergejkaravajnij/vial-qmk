@@ -215,8 +215,9 @@ static lv_obj_t *label_shift;
 static lv_obj_t *label_ctrl;
 static lv_obj_t *label_alt;
 static lv_obj_t *label_gui;
-static lv_obj_t *label_caps;
 static lv_obj_t *label_num;
+static lv_obj_t *label_caps;
+static lv_obj_t *label_scroll;
 static lv_obj_t *label_hid_media_artist;
 static lv_obj_t *label_hid_media_title;
 static lv_obj_t *screen_home_mods;
@@ -270,8 +271,9 @@ void screen_home_init(void) {
     label_ctrl  = create_button(screen_home_mods, "CTL", &style_button, &style_button_active);
     label_shift = create_button(screen_home_mods, "SFT", &style_button, &style_button_active);
 
-    label_caps = create_button(screen_home_mods, "CAPS", &style_button, &style_button_active);
     label_num  = create_button(screen_home_mods, "NUM", &style_button, &style_button_active);
+    label_caps = create_button(screen_home_mods, "CAPS", &style_button, &style_button_active);
+    label_scroll = create_button(screen_home_mods, "SCRL", &style_button, &style_button_active);
 
     screen_home_media = lv_obj_create(screen_home);
     lv_obj_add_flag(screen_home_media, LV_OBJ_FLAG_HIDDEN);
@@ -315,7 +317,7 @@ void show(lv_obj_t *obj) {
 void screen_home_housekeep(void) {
     static uint8_t prev_layer      = 255;
     static uint8_t prev_lang       = -1;
-    static led_t   prev_led_state  = {.raw = 255};
+    static led_t   prev_led_state  = {.raw = 0};
     static uint8_t prev_mods       = 255;
     static bool    prev_show_mods  = false;
     static bool    prev_hid_active = false;
@@ -378,6 +380,7 @@ void screen_home_housekeep(void) {
     if (led_state.raw != prev_led_state.raw) {
         toggle_state(label_caps, LV_STATE_PRESSED, led_state.caps_lock);
         toggle_state(label_num, LV_STATE_PRESSED, led_state.num_lock);
+        toggle_state(label_scroll, LV_STATE_PRESSED, led_state.scroll_lock);
         prev_led_state.raw = led_state.raw;
         return;
     }
