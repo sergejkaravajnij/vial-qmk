@@ -122,14 +122,16 @@ void render_status_modern(void) {
     oled_set_cursor(0, 4);
     led_t led_usb_state = host_keyboard_led_state();
     bool  caps          = led_usb_state.caps_lock || split_get_caps_word();
-    oled_write_P(caps ? PSTR("CPS\07\10") : PSTR("CPS\05\06"), false);
     oled_write_P(led_usb_state.num_lock ? PSTR("NUM\07\10") : PSTR("NUM\05\06"), false);
+    oled_write_P(caps ? PSTR("CPS\07\10") : PSTR("CPS\05\06"), false);
+    oled_write_P(led_usb_state.scroll_lock ? PSTR("SCR\07\10") : PSTR("SCR\05\06"), false);
 
-    oled_set_cursor(0, 7);
-    oled_write_P((get_mods() | get_oneshot_mods()) & MOD_MASK_SHIFT ? PSTR("SFT\07\10") : PSTR("SFT\05\06"), false);
-    oled_write_P((get_mods() | get_oneshot_mods()) & MOD_MASK_CTRL ? PSTR("CTL\07\10") : PSTR("CTL\05\06"), false);
-    oled_write_P((get_mods() | get_oneshot_mods()) & MOD_MASK_ALT ? PSTR("ALT\07\10") : PSTR("ALT\05\06"), false);
-    oled_write_P((get_mods() | get_oneshot_mods()) & MOD_MASK_GUI ? PSTR("GUI\07\10") : PSTR("GUI\05\06"), false);
+    oled_set_cursor(0, 8);
+    uint8_t mods = get_mods() | get_oneshot_mods();
+    oled_write_P(mods & MOD_MASK_SHIFT ? PSTR("SFT\07\10") : PSTR("SFT\05\06"), false);
+    oled_write_P(mods & MOD_MASK_CTRL ? PSTR("CTL\07\10") : PSTR("CTL\05\06"), false);
+    oled_write_P(mods & MOD_MASK_ALT ? PSTR("ALT\07\10") : PSTR("ALT\05\06"), false);
+    oled_write_P(mods & MOD_MASK_GUI ? PSTR("GUI\07\10") : PSTR("GUI\05\06"), false);
 
     char buf[16];
     int  wpm = get_current_wpm();
@@ -139,7 +141,7 @@ void render_status_modern(void) {
         sprintf(buf, "W  %d", wpm);
     else
         sprintf(buf, "W %d", wpm);
-    oled_set_cursor(0, 12);
+    oled_set_cursor(0, 13);
     oled_write_ln(buf, false);
 }
 
@@ -161,16 +163,20 @@ void render_status_minimalistic(void) {
     oled_write(split_get_lang() == LANG_EN ? "  " : "RU", false);
 
     led_t led_usb_state = host_keyboard_led_state();
+
     oled_set_cursor(0, 4);
+    oled_write_P(led_usb_state.num_lock ? PSTR("NUM") : PSTR("     "), false);
+
+    oled_set_cursor(0, 5);
     if (led_usb_state.caps_lock)
         oled_write_P(PSTR("CAPS"), false);
     else if (split_get_caps_word())
-        oled_write_P(PSTR("CAPSW"), false);
+        oled_write_P(PSTR("WORD"), false);
     else
         oled_write_P(PSTR("     "), false);
 
-    oled_set_cursor(0, 5);
-    oled_write_P(led_usb_state.num_lock ? PSTR("NUM") : PSTR("     "), false);
+    oled_set_cursor(0, 6);
+    oled_write_P(led_usb_state.scroll_lock ? PSTR("SCRL") : PSTR("     "), false);
 
     char buf[16];
     buf[0] = ((get_mods() | get_oneshot_mods()) & MOD_MASK_SHIFT) ? 'S' : ' ';
@@ -179,7 +185,7 @@ void render_status_minimalistic(void) {
     buf[3] = ((get_mods() | get_oneshot_mods()) & MOD_MASK_GUI) ? 'G' : ' ';
     buf[4] = '\0';
 
-    oled_set_cursor(0, 7);
+    oled_set_cursor(0, 8);
     oled_write(buf, false);
 
     int wpm = get_current_wpm();
@@ -193,7 +199,7 @@ void render_status_minimalistic(void) {
 
     } else
         sprintf(buf, "     ");
-    oled_set_cursor(0, 9);
+    oled_set_cursor(0, 10);
     oled_write_ln(buf, false);
 }
 
