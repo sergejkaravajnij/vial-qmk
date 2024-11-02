@@ -1,7 +1,7 @@
 #pragma once
 #include "quantum.h"
 
-#define EH_VERSION_STR "3.7.12"
+#define EH_VERSION_STR "3.7.13"
 
 #ifndef EH_SHORT_PRODUCT_NAME
 #    define EH_SHORT_PRODUCT_NAME PRODUCT
