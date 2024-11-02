@@ -34,14 +34,18 @@ typedef enum {
     OLED_DISABLED,
 } oled_mode_t;
 
-oled_mode_t get_oled_mode(void) {
-    if (is_keyboard_master()) return vial_config.oled_master;
+oled_mode_t get_oled_mode_on_half(bool on_master) {
+    if (on_master) return vial_config.oled_master;
 
     // first two modes swapped for slave
     if (vial_config.oled_slave == OLED_STATUS_CLASSIC) return OLED_SPLASH;
     if (vial_config.oled_slave == OLED_SPLASH) return OLED_STATUS_CLASSIC;
 
     return vial_config.oled_slave;
+}
+
+oled_mode_t get_oled_mode(void) {
+    return get_oled_mode_on_half(is_keyboard_master());
 }
 
 uint8_t split_get_lang(void) {
@@ -145,6 +149,22 @@ void render_status_modern(void) {
     oled_write_ln(buf, false);
 }
 
+void render_big_num(int num, char* c0, char* c1, char* c2, char* c3) {
+    *c0 = 0x80 + num * 2;
+    *c1 = 0x81 + num * 2;
+    *c2 = 0xa0 + num * 2;
+    *c3 = 0xa1 + num * 2;
+}
+
+const char* render_clock_ver(uint8_t hours, uint8_t minutes) {
+    static char buf[26] = "                         ";
+    render_big_num(hours / 10, buf + 0, buf + 1, buf + 5, buf + 6);
+    render_big_num(hours % 10, buf + 2, buf + 3, buf + 7, buf + 8);
+    render_big_num(minutes / 10, buf + 16, buf + 17, buf + 21, buf + 22);
+    render_big_num(minutes % 10, buf + 18, buf + 19, buf + 23, buf + 24);
+    return buf;
+}
+
 void render_status_minimalistic(void) {
     oled_clear();
     int layer = get_current_layer();
@@ -188,19 +208,12 @@ void render_status_minimalistic(void) {
     oled_set_cursor(0, 8);
     oled_write(buf, false);
 
-    int wpm = get_current_wpm();
-    if (wpm > 0) {
-        if (wpm < 10)
-            sprintf(buf, "WPM %d", wpm);
-        else if (wpm < 100)
-            sprintf(buf, "W  %d", wpm);
-        else
-            sprintf(buf, "W %d", wpm);
-
-    } else
-        sprintf(buf, "     ");
-    oled_set_cursor(0, 10);
-    oled_write_ln(buf, false);
+    bool show_clock = get_oled_mode_on_half(!is_keyboard_master()) != OLED_MEDIA_VER;
+    if (is_hid_active() && show_clock) {
+        hid_data_t* hid_data = get_hid_data();
+        oled_set_cursor(0, 10);
+        oled_write(render_clock_ver(hid_data->hours, hid_data->minutes), false);
+    }
 }
 
 void render_volume_ver(int volume) {
@@ -234,23 +247,6 @@ void render_volume_ver(int volume) {
     oled_write(" VOL ", false);
 }
 
-void render_big_num(int num, char* c0, char* c1, char* c2, char* c3) {
-    *c0 = 0x80 + num * 2;
-    *c1 = 0x81 + num * 2;
-    *c2 = 0xa0 + num * 2;
-    *c3 = 0xa1 + num * 2;
-}
-
-void render_clock_ver(uint8_t hours, uint8_t minutes) {
-    oled_set_cursor(0, 5);
-    char buf[26] = "                         ";
-    render_big_num(hours / 10, buf + 0, buf + 1, buf + 5, buf + 6);
-    render_big_num(hours % 10, buf + 2, buf + 3, buf + 7, buf + 8);
-    render_big_num(minutes / 10, buf + 16, buf + 17, buf + 21, buf + 22);
-    render_big_num(minutes % 10, buf + 18, buf + 19, buf + 23, buf + 24);
-    oled_write(buf, false);
-}
-
 void render_media_ver(void) {
     static uint32_t volume_changed_stamp = 0;
     static uint32_t time_changed_stamp   = 0;
@@ -270,7 +266,8 @@ void render_media_ver(void) {
     if (timer_elapsed32(volume_changed_stamp) < 2 * 1000) {
         render_volume_ver(hid_data->volume);
     } else if (timer_elapsed32(time_changed_stamp) < 61 * 1000) {
-        render_clock_ver(hid_data->hours, hid_data->minutes);
+        oled_set_cursor(0, 5);
+        oled_write(render_clock_ver(hid_data->hours, hid_data->minutes), false);
     }
 }
 
