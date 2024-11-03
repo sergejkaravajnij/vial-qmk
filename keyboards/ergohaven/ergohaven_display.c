@@ -67,7 +67,7 @@ bool display_init_kb(void) {
     display_enabled = false;
     dprint("display_init_kb - start\n");
 
-    gpio_set_pin_output(EH_DISPLAY_BACKLIGHT_PIN);
+    backlight_init();
 
     display = qp_st7789_make_spi_device(240, 280, LCD_CS_PIN, LCD_DC_PIN, LCD_RST_PIN, 4, 3);
     qp_set_viewport_offsets(display, 0, 20);
@@ -87,7 +87,7 @@ static bool is_display_on = false;
 
 void display_turn_on(void) {
     if (!is_display_on) {
-        gpio_write_pin_high(EH_DISPLAY_BACKLIGHT_PIN);
+        backlight_init();
         qp_power(display, true);
         is_display_on = true;
     }
@@ -97,7 +97,7 @@ void display_turn_off(void) {
     if (is_display_on) {
         is_display_on = false;
         qp_power(display, false);
-        gpio_write_pin_low(EH_DISPLAY_BACKLIGHT_PIN);
+        backlight_level_noeeprom(0);
     }
 }
 

@@ -2,7 +2,7 @@
     "name": "K:03 Pro",
     "vendorId": "0x444D",
     "productId": "0x3636",
-    "lighting": "qmk_rgblight",
+    "lighting": "qmk_backlight_rgblight",
     "matrix": {
         "rows": 10,
         "cols": 6

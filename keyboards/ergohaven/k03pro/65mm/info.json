@@ -15,6 +15,11 @@
         "pid": "0x00A1",
         "device_version": "1.0.0"
     },
+    "backlight": {
+        "pin": "GP17",
+        "levels": 10,
+        "breathing": false
+    },
     "rgb_matrix": {
         "driver": "ws2812"
     },

@@ -1,6 +1,6 @@
 {
     "name": "Planeta v2 (HID)",
-    "lighting": "qmk_rgblight",
+    "lighting": "qmk_backlight_rgblight",
     "matrix":{ "rows":5, "cols":12 },
 #include "keyboards/ergohaven/vial_custom_keycodes.json"
     "layouts":{
