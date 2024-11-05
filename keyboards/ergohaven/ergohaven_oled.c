@@ -167,67 +167,137 @@ const char* render_clock_ver(uint8_t hours, uint8_t minutes) {
 
 void render_status_minimalistic(void) {
     oled_clear();
+
     int layer = get_current_layer();
-    if (layer == 0)
-        oled_write_ln("     ", false);
-    else
-        oled_write_ln(layer_upper_name(layer), false);
+    if (0 < layer && layer < 10) {
+        char buf[11] = "          ";
+        render_big_num(layer, buf + 1, buf + 2, buf + 6, buf + 7);
+        oled_write(buf, false);
+    } else if (10 <= layer && layer < 16) {
+        char buf[11] = "          ";
+        render_big_num(layer / 10, buf + 0, buf + 1, buf + 5, buf + 6);
+        render_big_num(layer % 10, buf + 2, buf + 3, buf + 7, buf + 8);
+        oled_write(buf, false);
+    }
 
-    oled_set_cursor(0, 1);
-    if (split_get_mac())
-        oled_write_P(PSTR("   \01\02   \03\04"), false);
-    else
-        oled_write_P(PSTR("          "), false);
-
-    oled_set_cursor(0, 2);
-    oled_write(split_get_lang() == LANG_EN ? "  " : "RU", false);
+    oled_set_cursor(0, 3);
+    oled_write(split_get_lang() == LANG_EN ? "     " : " RU  ", false);
 
     led_t led_usb_state = host_keyboard_led_state();
 
-    oled_set_cursor(0, 4);
-    oled_write_P(led_usb_state.num_lock ? PSTR("NUM") : PSTR("     "), false);
+    {
+        char buf[11] = "          ";
+        if (led_usb_state.num_lock) {
+            buf[0] = '\x96';
+            buf[1] = '\x97';
+            buf[5] = '\xb6';
+            buf[6] = '\xb7';
+        }
+        if (led_usb_state.caps_lock) {
+            buf[2] = '\x94';
+            buf[3] = '\x95';
+            buf[7] = '\xb4';
+            buf[8] = '\xb5';
 
-    oled_set_cursor(0, 5);
-    if (led_usb_state.caps_lock)
-        oled_write_P(PSTR("CAPS"), false);
-    else if (split_get_caps_word())
-        oled_write_P(PSTR("WORD"), false);
-    else
-        oled_write_P(PSTR("     "), false);
+        } else if (split_get_caps_word()) {
+            buf[2] = '\x9A';
+            buf[3] = '\x9B';
+            buf[7] = '\xBA';
+            buf[8] = '\xBB';
+        }
+        oled_set_cursor(0, 11);
+        oled_write(buf, false);
+    }
+    {
+        char buf[11] = "          ";
+        if (split_get_mac()) {
+            buf[1] = '\x01';
+            buf[2] = '\x02';
+            buf[6] = '\x03';
+            buf[7] = '\x04';
+        } else if (led_usb_state.scroll_lock) {
+            buf[1] = '\x98';
+            buf[2] = '\x99';
+            buf[6] = '\xb8';
+            buf[7] = '\xb9';
+        }
+        oled_set_cursor(0, 13);
+        oled_write(buf, false);
+    }
 
-    oled_set_cursor(0, 6);
-    oled_write_P(led_usb_state.scroll_lock ? PSTR("SCRL") : PSTR("     "), false);
+    uint8_t mods       = get_mods() | get_oneshot_mods();
+    bool    show_clock = is_hid_active() && get_oled_mode_on_half(!is_keyboard_master()) != OLED_MEDIA_VER;
 
-    char buf[16];
-    buf[0] = ((get_mods() | get_oneshot_mods()) & MOD_MASK_SHIFT) ? 'S' : ' ';
-    buf[1] = ((get_mods() | get_oneshot_mods()) & MOD_MASK_CTRL) ? 'C' : ' ';
-    buf[2] = ((get_mods() | get_oneshot_mods()) & MOD_MASK_ALT) ? 'A' : ' ';
-    buf[3] = ((get_mods() | get_oneshot_mods()) & MOD_MASK_GUI) ? 'G' : ' ';
-    buf[4] = '\0';
+    if (mods != 0 || !show_clock) {
+        char buf[21] = "                    ";
+        if (mods & MOD_MASK_SHIFT) {
+            buf[0] = '\xD1';
+            buf[1] = '\xD2';
+            buf[5] = '\xD3';
+            buf[6] = '\xD4';
+        }
+        if (mods & MOD_MASK_CTRL) {
+            buf[3] = '\xD9';
+            buf[4] = '\xDA';
+            buf[8] = ' ';
+            buf[9] = ' ';
+        }
+        if (mods & MOD_MASK_ALT) {
+            if (!split_get_mac()) {
+                buf[10] = '\xDB';
+                buf[11] = '\xDC';
+                buf[15] = '\xDD';
+                buf[16] = '\xDE';
+            } else {
+                buf[10] = '\x9E';
+                buf[11] = '\x9F';
+                buf[15] = '\xBE';
+                buf[16] = '\xBF';
+            }
+        }
+        if (mods & MOD_MASK_GUI) {
+            if (!split_get_mac()) {
+                buf[13] = '\xD5';
+                buf[14] = '\xD6';
+                buf[18] = '\xD7';
+                buf[19] = '\xD8';
+            } else {
+                buf[13] = '\x9C';
+                buf[14] = '\x9D';
+                buf[18] = '\xBC';
+                buf[19] = '\xBD';
+            }
+        }
 
-    oled_set_cursor(0, 8);
-    oled_write(buf, false);
-
-    bool show_clock = get_oled_mode_on_half(!is_keyboard_master()) != OLED_MEDIA_VER;
-    if (is_hid_active() && show_clock) {
+        oled_set_cursor(0, 6);
+        oled_write(buf, false);
+    } else {
         hid_data_t* hid_data = get_hid_data();
-        oled_set_cursor(0, 10);
-        oled_write(render_clock_ver(hid_data->hours, hid_data->minutes), false);
+        uint8_t     hours    = hid_data->hours;
+        uint8_t     minutes  = hid_data->minutes;
+
+        char buf[21] = "                    ";
+        render_big_num(hours / 10, buf + 0, buf + 1, buf + 5, buf + 6);
+        render_big_num(hours % 10, buf + 2, buf + 3, buf + 7, buf + 8);
+        render_big_num(minutes / 10, buf + 11, buf + 12, buf + 16, buf + 17);
+        render_big_num(minutes % 10, buf + 13, buf + 14, buf + 18, buf + 19);
+        oled_set_cursor(0, 6);
+        oled_write(buf, false);
     }
 }
 
 void render_volume_ver(int volume) {
     // clang-format off
     const char* vol_str[] = {
-        "\x9B\xC0\xC0\xC0\x9C\0",
-        "\x9B\xC1\xC1\xC1\x9C\0",
-        "\x9B\xC2\xC2\xC2\x9C\0",
-        "\x9B\xC3\xC3\xC3\x9C\0",
-        "\x9B\xC4\xC4\xC4\x9C\0",
-        "\x9B\xC5\xC5\xC5\x9C\0",
-        "\x9B\xC6\xC6\xC6\x9C\0",
-        "\x9B\xC7\xC7\xC7\x9C\0",
-        "\x9B\xC8\xC8\xC8\x9C\0",
+        "\xCC\xC0\xC0\xC0\xCD\0",
+        "\xCC\xC1\xC1\xC1\xCD\0",
+        "\xCC\xC2\xC2\xC2\xCD\0",
+        "\xCC\xC3\xC3\xC3\xCD\0",
+        "\xCC\xC4\xC4\xC4\xCD\0",
+        "\xCC\xC5\xC5\xC5\xCD\0",
+        "\xCC\xC6\xC6\xC6\xCD\0",
+        "\xCC\xC7\xC7\xC7\xCD\0",
+        "\xCC\xC8\xC8\xC8\xCD\0",
     };
     // clang-format on
 
@@ -236,14 +306,14 @@ void render_volume_ver(int volume) {
     oled_write(buf, false);
 
     oled_set_cursor(0, 1);
-    oled_write("\x98\x99\x99\x99\x9A", false);
+    oled_write("\xC9\xCA\xCA\xCA\xCB", false);
     for (int i = 0; i < 10; i++) {
         int t1 = volume - (9 - i) * 10;
         int t2 = MIN(MAX(t1, 0), 10);
         int t3 = (t2 * 8 + 5) / 10;
         oled_write(vol_str[t3], false);
     }
-    oled_write("\x9D\x9E\x9E\x9E\x9F", false);
+    oled_write("\xCE\xCF\xCF\xCF\xD0", false);
     oled_write(" VOL ", false);
 }
 
