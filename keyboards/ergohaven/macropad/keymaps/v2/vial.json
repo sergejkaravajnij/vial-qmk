@@ -2,6 +2,7 @@
     "name": "M4CR0Pad v2",
     "vendorId": "0xe612",
     "productId": "0x0041",
+    "lighting": "qmk_backlight",
     "matrix": {
         "rows": 5,
         "cols": 3

@@ -8,6 +8,11 @@
         "pid": "0x0041",
         "device_version": "1.0.0"
     },
+    "backlight": {
+        "pin": "GP17",
+        "levels": 10,
+        "breathing": false
+      },
     "encoder": {
         "rotary": [
             {"pin_a": "GP27", "pin_b": "GP28"}

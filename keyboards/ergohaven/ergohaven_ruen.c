@@ -260,7 +260,7 @@ void housekeeping_task_ruen(void) {
 
     if (should_revert_macro) return;
 
-    struct hid_data_t *hid_data = get_hid_data();
+    hid_data_t *hid_data = get_hid_data();
     if (hid_data->layout_changed) {
         if (hid_data->layout == LANG_EN)
             cur_lang = LANG_EN;

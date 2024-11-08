@@ -4,7 +4,7 @@ BOOTLOADER = rp2040
 # ALLOW_WARNINGS = yes
 # PICO_INTRINSICS_ENABLED = no
 
-DEFAULT_FOLDER = ergohaven/velvet/rev2
+DEFAULT_FOLDER = ergohaven/velvet/rev3
 
 SPLIT_KEYBOARD = yes
 SERIAL_DRIVER = vendor
@@ -23,6 +23,7 @@ CAPS_WORD_ENABLE = yes
 REPEAT_KEY_ENABLE = yes
 AUTO_SHIFT_ENABLE = yes
 NO_USB_STARTUP_CHECK = yes
+RAW_ENABLE = yes
 
 SRC += keyboards/ergohaven/ergohaven_main.c
 SRC += keyboards/ergohaven/ergohaven_ruen.c
