@@ -24,7 +24,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         ),
 
       [_ADJUST] = LAYOUT( \
-        QK_BOOT, _______,  KC_F1,   KC_F2,   KC_F3,   KC_F4,                                               _______, _______, _______, _______, DM_PLY1, DM_REC1,
+        QK_BOOT, _______,  KC_F1,   KC_F2,   KC_F3,   KC_F4,                                               CG_TOGG, _______, _______, _______, DM_PLY1, DM_REC1,
         _______, _______,  KC_F5,   KC_F6,   KC_F7,   KC_F8,                                               _______, KC_VOLD, KC_MUTE, KC_VOLU, DM_PLY2, DM_REC2,
         _______, _______,  KC_F9,   KC_F10,  KC_F11,  KC_F12,                                              _______, KC_MPRV, KC_MPLY, KC_MNXT, _______, DM_RSTP,
                            _______, _______, _______, _______,                                             _______, _______, _______, _______
