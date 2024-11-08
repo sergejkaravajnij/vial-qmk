@@ -165,8 +165,8 @@ report_mouse_t azoteq_iqs5xx_get_report(report_mouse_t mouse_report) {
                 pd_dprintf("IQS5XX - Single tap/hold.\n");
                 temp_report.buttons = pointing_device_handle_buttons(temp_report.buttons, true, POINTING_DEVICE_BUTTON1);
             } else if (base_data.gesture_events_1.two_finger_tap) {
-                pd_dprintf("IQS5XX - Two finger tap.\n");
-                if (base_data.previous_cycle_time == 10) // this fixes weird bug with two extra clicks
+                pd_dprintf("IQS5XX - Two finger tap cycle_time=%d.\n", base_data.previous_cycle_time);
+                if (base_data.previous_cycle_time != 0) // this fixes weird bug with two extra clicks
                     temp_report.buttons = pointing_device_handle_buttons(temp_report.buttons, true, POINTING_DEVICE_BUTTON2);
             } else if (base_data.gesture_events_0.swipe_x_neg) {
                 pd_dprintf("IQS5XX - X-.\n");
