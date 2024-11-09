@@ -231,6 +231,7 @@ uint8_t get_current_layer(void) {
 static const char* PROGMEM LAYER_NAME[] = {
     // clang-format off
     "Base ",
+    "Rus  ",
     "Lower",
     "Raise",
     "Adjst",
@@ -245,13 +246,14 @@ static const char* PROGMEM LAYER_NAME[] = {
     "Twlve",
     "Thrtn",
     "Frtn ",
-    "Fiftn",
+//    "Fiftn",
     // clang-format on
 };
 
 static const char* PROGMEM LAYER_UPPER_NAME[] = {
     // clang-format off
     "BASE ",
+    "RUS  ",
     "LOWER",
     "RAISE",
     "ADJST",
@@ -266,7 +268,7 @@ static const char* PROGMEM LAYER_UPPER_NAME[] = {
     "TWLVE",
     "THRTN",
     "FRTN ",
-    "FIFTN",
+//    "FIFTN",
     // clang-format on
 };
 
