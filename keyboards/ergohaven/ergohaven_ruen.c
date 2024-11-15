@@ -84,21 +84,6 @@ uint8_t get_cur_lang(void) {
     return cur_lang;
 }
 
-typedef struct {
-    uint16_t en;
-    uint16_t ru;
-} ru_en_symbol;
-
-ru_en_symbol ru_en_table[] = {
-    {KC_DOT, KC_SLASH},         // LG_DOT
-    {KC_COMMA, LSFT(KC_SLASH)}, // LG_COMMA
-    {KC_SCLN, LSFT(KC_4)},      // LG_SCLN
-    {KC_COLON, LSFT(KC_6)},     // LG_COLON
-    {KC_DQUO, LSFT(KC_2)},      // LG_DQUO
-    {KC_QUES, LSFT(KC_7)},      // LG_QUES
-    {KC_SLASH, LSFT(KC_BSLS)},  // LG_SLASH
-};
-
 uint16_t en_table[] = {
     KC_LBRC,  // LG_LBR
     KC_RBRC,  // LG_RBR
@@ -199,11 +184,32 @@ bool process_record_ruen(uint16_t keycode, keyrecord_t *record) {
             kb_config_update_ruen_toggle_mode(tg_mode);
             return false;
 
-        case LG_RU_EN_START ... LG_SLASH:
-            if (cur_lang == 0)
-                tap_code16(ru_en_table[keycode - LG_RU_EN_START].en);
-            else
-                tap_code16(ru_en_table[keycode - LG_RU_EN_START].ru);
+        case LG_DOT: // .
+            tap_code16(cur_lang == LANG_EN ? KC_DOT : keymap_config.swap_lctl_lgui ? S(KC_7) : KC_SLASH);
+            return false;
+
+        case LG_COMMA: // ,
+            tap_code16(cur_lang == LANG_EN ? KC_COMMA : keymap_config.swap_lctl_lgui ? S(KC_6) : S(KC_SLASH));
+            return false;
+
+        case LG_SCLN: // ;
+            tap_code16(cur_lang == LANG_EN ? KC_SCLN : keymap_config.swap_lctl_lgui ? S(KC_8) : S(KC_4));
+            return false;
+
+        case LG_COLON: // :
+            tap_code16(cur_lang == LANG_EN ? KC_COLON : keymap_config.swap_lctl_lgui ? S(KC_5) : S(KC_6));
+            return false;
+
+        case LG_DQUO: // "
+            tap_code16(cur_lang == LANG_EN ? KC_DQUO : S(KC_2));
+            return false;
+
+        case LG_QUES: // ?
+            tap_code16(cur_lang == LANG_EN || keymap_config.swap_lctl_lgui ? KC_QUES : S(KC_7));
+            return false;
+
+        case LG_SLASH: // /
+            tap_code16(cur_lang == LANG_EN || keymap_config.swap_lctl_lgui ? KC_SLASH : LSFT(KC_BSLS));
             return false;
 
         case LG_EN_START ... LG_QUOTE: {

@@ -10,9 +10,7 @@ enum ruen_custom_keycodes {
     LG_SET_M1M2,
     LG_SET_DFLT,
 
-    // symbols exist in russian and english layout
-    LG_RU_EN_START,
-    LG_DOT = LG_RU_EN_START,
+    LG_DOT,
     LG_COMMA,
     LG_SCLN,
     LG_COLON,
