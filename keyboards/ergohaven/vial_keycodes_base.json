@@ -1,6 +1,6 @@
-        {"name": "",
-        "title": "Not using",
-        "shortName": ""
+        {"name": "EH_PRINF",
+        "title": "Print information about firmware and modes",
+        "shortName": "Print\nInfo"
         },
         {"name": "WRD_NXT",
         "title": "Jump to next word",

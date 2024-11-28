@@ -53,13 +53,14 @@
 #define APP_B     LSG(KC_B)
 
 enum custom_keycodes {
-    EH_RESERV1 = QK_KB,
+    EH_PRINFO = QK_KB,
     WRD_NXT,
     WRD_PRV,
     WNEXT,
     WPREV,
     LAYER_NEXT,
     LAYER_PREV,
+    EH_RESERV1,
 };
 
 // 1st layer on the cycle

@@ -4,6 +4,7 @@
 #include "ergohaven_rgb.h"
 #include "ergohaven_display.h"
 #include "hid.h"
+#include "version.h"
 
 typedef union {
     uint32_t raw;
@@ -118,6 +119,32 @@ bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
 
             layer_move(next_layer);
             return false;
+
+        case EH_PRINFO: {
+            if (record->event.pressed) {
+                send_string("FW version: " QMK_VERSION "\n");
+                send_string("Build date: " QMK_BUILDDATE "\n");
+                send_string("Git hash: " QMK_GIT_HASH "\n");
+
+                send_string("Mac mode: ");
+                send_string(keymap_config.swap_lctl_lgui ? "on\n" : "off\n");
+
+                send_string("RuEn mode: ");
+                uint8_t ruen_mode = get_ruen_toggle_mode();
+                if (ruen_mode == TG_DEFAULT)
+                    send_string("default\n");
+                else if (ruen_mode == TG_M0)
+                    send_string("M0\n");
+                else if (ruen_mode == TG_M1M2)
+                    send_string("M1M2\n");
+                else
+                    send_string("error\n");
+
+                send_string("RuEn layout: ");
+                send_string(get_ruen_mac_layout() ? "Mac\n" : "PC\n");
+            }
+            return false;
+        }
 
         case LG_START ... LG_END:
             return process_record_ruen(keycode, record);
