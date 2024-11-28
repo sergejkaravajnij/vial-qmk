@@ -9,6 +9,7 @@ typedef union {
     uint32_t raw;
     struct {
         uint8_t ruen_toggle_mode : 2;
+        bool    ruen_mac_layout : 1;
     };
 } kb_config_t;
 
@@ -16,6 +17,11 @@ kb_config_t kb_config;
 
 void kb_config_update_ruen_toggle_mode(uint8_t mode) {
     kb_config.ruen_toggle_mode = mode;
+    eeconfig_update_kb(kb_config.raw);
+}
+
+void kb_config_update_ruen_mac_layout(bool mac_layout) {
+    kb_config.ruen_mac_layout = mac_layout;
     eeconfig_update_kb(kb_config.raw);
 }
 
@@ -113,7 +119,7 @@ bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
             layer_move(next_layer);
             return false;
 
-        case LG_TOGGLE ... LG_END:
+        case LG_START ... LG_END:
             return process_record_ruen(keycode, record);
     }
 
@@ -168,6 +174,7 @@ void matrix_scan_kb(void) { // The very important timer.
 void keyboard_post_init_kb(void) {
     kb_config.raw = eeconfig_read_kb();
     set_ruen_toggle_mode(kb_config.ruen_toggle_mode);
+    set_ruen_mac_layout(kb_config.ruen_mac_layout);
 
 #ifdef RGBLIGHT_ENABLE
     keyboard_post_init_rgb();

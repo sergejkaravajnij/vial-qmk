@@ -80,3 +80,5 @@ bool split_get_mac(void);
 bool split_get_caps_word(void);
 
 void kb_config_update_ruen_toggle_mode(uint8_t mode);
+
+void kb_config_update_ruen_mac_layout(bool mac_layout);
