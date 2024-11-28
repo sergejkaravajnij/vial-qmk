@@ -1,7 +1,7 @@
 #pragma once
 #include "quantum.h"
 
-#define EH_VERSION_STR "3.8.0"
+#define EH_VERSION_STR "3.8.1"
 
 #ifndef EH_SHORT_PRODUCT_NAME
 #    define EH_SHORT_PRODUCT_NAME PRODUCT
@@ -53,13 +53,14 @@
 #define APP_B     LSG(KC_B)
 
 enum custom_keycodes {
-    EH_RESERV1 = QK_KB,
-    EH_RESERV2,
-    EH_RESERV3,
+    EH_PRINFO = QK_KB,
+    WRD_NXT,
+    WRD_PRV,
     WNEXT,
     WPREV,
     LAYER_NEXT,
     LAYER_PREV,
+    EH_RESERV1,
 };
 
 // 1st layer on the cycle
@@ -80,3 +81,5 @@ bool split_get_mac(void);
 bool split_get_caps_word(void);
 
 void kb_config_update_ruen_toggle_mode(uint8_t mode);
+
+void kb_config_update_ruen_mac_layout(bool mac_layout);

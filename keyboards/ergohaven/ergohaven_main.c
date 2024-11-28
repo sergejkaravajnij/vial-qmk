@@ -4,11 +4,13 @@
 #include "ergohaven_rgb.h"
 #include "ergohaven_display.h"
 #include "hid.h"
+#include "version.h"
 
 typedef union {
     uint32_t raw;
     struct {
         uint8_t ruen_toggle_mode : 2;
+        bool    ruen_mac_layout : 1;
     };
 } kb_config_t;
 
@@ -16,6 +18,11 @@ kb_config_t kb_config;
 
 void kb_config_update_ruen_toggle_mode(uint8_t mode) {
     kb_config.ruen_toggle_mode = mode;
+    eeconfig_update_kb(kb_config.raw);
+}
+
+void kb_config_update_ruen_mac_layout(bool mac_layout) {
+    kb_config.ruen_mac_layout = mac_layout;
     eeconfig_update_kb(kb_config.raw);
 }
 
@@ -40,6 +47,20 @@ bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
     // #endif
 
     switch (keycode) { // This will do most of the grunt work with the keycodes.
+        case WRD_NXT:
+            if (record->event.pressed) {
+                register_code16(keymap_config.swap_lctl_lgui ? A(KC_RIGHT) : C(KC_RIGHT));
+            } else
+                unregister_code16(keymap_config.swap_lctl_lgui ? A(KC_RIGHT) : C(KC_RIGHT));
+            return false;
+
+        case WRD_PRV:
+            if (record->event.pressed) {
+                register_code16(keymap_config.swap_lctl_lgui ? A(KC_LEFT) : C(KC_LEFT));
+            } else
+                unregister_code16(keymap_config.swap_lctl_lgui ? A(KC_LEFT) : C(KC_LEFT));
+            return false;
+
         case WNEXT:
             if (record->event.pressed) {
                 if (!is_alt_tab_active) {
@@ -99,7 +120,33 @@ bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
             layer_move(next_layer);
             return false;
 
-        case LG_TOGGLE ... LG_END:
+        case EH_PRINFO: {
+            if (record->event.pressed) {
+                send_string("FW version: " QMK_VERSION "\n");
+                send_string("Build date: " QMK_BUILDDATE "\n");
+                send_string("Git hash: " QMK_GIT_HASH "\n");
+
+                send_string("Mac mode: ");
+                send_string(keymap_config.swap_lctl_lgui ? "on\n" : "off\n");
+
+                send_string("RuEn mode: ");
+                uint8_t ruen_mode = get_ruen_toggle_mode();
+                if (ruen_mode == TG_DEFAULT)
+                    send_string("default\n");
+                else if (ruen_mode == TG_M0)
+                    send_string("M0\n");
+                else if (ruen_mode == TG_M1M2)
+                    send_string("M1M2\n");
+                else
+                    send_string("error\n");
+
+                send_string("RuEn layout: ");
+                send_string(get_ruen_mac_layout() ? "Mac\n" : "PC\n");
+            }
+            return false;
+        }
+
+        case LG_START ... LG_END:
             return process_record_ruen(keycode, record);
     }
 
@@ -154,6 +201,7 @@ void matrix_scan_kb(void) { // The very important timer.
 void keyboard_post_init_kb(void) {
     kb_config.raw = eeconfig_read_kb();
     set_ruen_toggle_mode(kb_config.ruen_toggle_mode);
+    set_ruen_mac_layout(kb_config.ruen_mac_layout);
 
 #ifdef RGBLIGHT_ENABLE
     keyboard_post_init_rgb();
