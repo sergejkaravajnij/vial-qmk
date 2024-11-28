@@ -40,6 +40,20 @@ bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
     // #endif
 
     switch (keycode) { // This will do most of the grunt work with the keycodes.
+        case WRD_NXT:
+            if (record->event.pressed) {
+                register_code16(keymap_config.swap_lctl_lgui ? A(KC_RIGHT) : C(KC_RIGHT));
+            } else
+                unregister_code16(keymap_config.swap_lctl_lgui ? A(KC_RIGHT) : C(KC_RIGHT));
+            return false;
+
+        case WRD_PRV:
+            if (record->event.pressed) {
+                register_code16(keymap_config.swap_lctl_lgui ? A(KC_LEFT) : C(KC_LEFT));
+            } else
+                unregister_code16(keymap_config.swap_lctl_lgui ? A(KC_LEFT) : C(KC_LEFT));
+            return false;
+
         case WNEXT:
             if (record->event.pressed) {
                 if (!is_alt_tab_active) {

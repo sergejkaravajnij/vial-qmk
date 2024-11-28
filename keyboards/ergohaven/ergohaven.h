@@ -54,8 +54,8 @@
 
 enum custom_keycodes {
     EH_RESERV1 = QK_KB,
-    EH_RESERV2,
-    EH_RESERV3,
+    WRD_NXT,
+    WRD_PRV,
     WNEXT,
     WPREV,
     LAYER_NEXT,
