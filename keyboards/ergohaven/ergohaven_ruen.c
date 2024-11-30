@@ -72,8 +72,7 @@ uint8_t get_ruen_toggle_mode(void) {
     return tg_mode;
 }
 
-void set_ruen_mac_layout(bool layout)
-{
+void set_ruen_mac_layout(bool layout) {
     mac_layout = layout;
 }
 
@@ -143,7 +142,7 @@ bool pre_process_record_ruen(uint16_t keycode, keyrecord_t *record) {
             uint8_t lang = cur_lang;
             set_lang(LANG_EN);
             should_revert_ru = should_revert_ru || (cur_lang != lang);
-            revert_time   = timer_read32();
+            revert_time      = timer_read32();
             break;
         }
     }
@@ -167,12 +166,14 @@ bool pre_process_record_ruen(uint16_t keycode, keyrecord_t *record) {
 }
 
 bool process_record_ruen(uint16_t keycode, keyrecord_t *record) {
+    if (!(LG_START <= keycode && keycode < LG_END)) return true;
+
     if (keycode == LG_MOD) {
         lang_toggle();
-        return true;
+        return false;
     }
 
-    if (!record->event.pressed) return true;
+    if (!record->event.pressed) return false;
 
     switch (keycode) {
         case LG_TOGGLE:

@@ -72,7 +72,7 @@ bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
             } else {
                 unregister_code(KC_TAB);
             }
-            break;
+            return false;
 
         case WPREV:
             if (record->event.pressed) {
@@ -85,7 +85,7 @@ bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
             } else {
                 unregister_code16(S(KC_TAB));
             }
-            break;
+            return false;
 
         case KC_CAPS:
             if (record->event.pressed) {
@@ -145,10 +145,9 @@ bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
             }
             return false;
         }
-
-        case LG_START ... LG_END:
-            return process_record_ruen(keycode, record);
     }
+
+    if (!process_record_ruen(keycode, record)) return false;
 
     return process_record_user(keycode, record);
 }
