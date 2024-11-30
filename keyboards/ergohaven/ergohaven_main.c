@@ -129,6 +129,26 @@ bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
                 send_string("Mac mode: ");
                 send_string(keymap_config.swap_lctl_lgui ? "on\n" : "off\n");
 
+                send_string("Unicode mode: ");
+                uint8_t uc_input_mode = get_unicode_input_mode();
+                switch (uc_input_mode) {
+                    case UNICODE_MODE_MACOS:
+                        send_string("Mac\n");
+                        break;
+                    case UNICODE_MODE_LINUX:
+                        send_string("Linux\n");
+                        break;
+                    case UNICODE_MODE_WINDOWS:
+                        send_string("Windows\n");
+                        break;
+                    case UNICODE_MODE_WINCOMPOSE:
+                        send_string("WinCompose\n");
+                        break;
+                    default:
+                        send_string("error\n");
+                        break;
+                }
+
                 send_string("RuEn mode: ");
                 uint8_t ruen_mode = get_ruen_toggle_mode();
                 if (ruen_mode == TG_DEFAULT)
