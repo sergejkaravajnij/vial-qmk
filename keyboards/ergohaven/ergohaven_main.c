@@ -219,6 +219,10 @@ layer_state_t default_layer_state_set_kb(layer_state_t state) {
 }
 
 layer_state_t layer_state_set_kb(layer_state_t state) {
+    if (is_alt_tab_active) {
+        unregister_code(keymap_config.swap_lctl_lgui ? KC_LGUI : KC_LALT);
+        is_alt_tab_active = false;
+    }
     state = layer_state_set_user(state);
 #ifdef RGBLIGHT_ENABLE
     layer_state_set_rgb(state | default_layer_state);
