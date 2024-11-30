@@ -165,6 +165,16 @@ bool pre_process_record_ruen(uint16_t keycode, keyrecord_t *record) {
     return true;
 }
 
+bool process_russian_letter(uint8_t keycode) {
+    if (cur_lang == LANG_RU) {
+        if (is_caps_word_on()) {
+            add_weak_mods(MOD_BIT(KC_LSFT));
+        }
+        tap_code(keycode);
+    }
+    return false;
+}
+
 bool process_record_ruen(uint16_t keycode, keyrecord_t *record) {
     if (!(LG_START <= keycode && keycode < LG_END)) return true;
 
@@ -252,6 +262,23 @@ bool process_record_ruen(uint16_t keycode, keyrecord_t *record) {
             revert_time      = timer_read32();
             return false;
         }
+
+        case LG_RU_BE:
+            return process_russian_letter(KC_COMMA);
+        case LG_RU_YU:
+            return process_russian_letter(KC_DOT);
+        case LG_RU_ZHE:
+            return process_russian_letter(KC_SEMICOLON);
+        case LG_RU_E:
+            return process_russian_letter(KC_QUOT);
+        case LG_RU_HRD_SGN:
+            return process_russian_letter(KC_RBRC);
+        case LG_RU_KHA:
+            return process_russian_letter(KC_LBRC);
+            return false;
+        case LG_RU_YO:
+            return process_russian_letter(KC_GRAVE);
+            return false;
 
         case LG_NUM: {
             uint8_t lang = cur_lang;

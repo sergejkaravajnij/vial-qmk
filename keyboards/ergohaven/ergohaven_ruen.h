@@ -51,6 +51,15 @@ enum ruen_custom_keycodes {
     LG_PERC,
     LG_TG_MAC,
 
+    // Russian symbols (do nothing on English layout)
+    LG_RU_BE,
+    LG_RU_YU,
+    LG_RU_ZHE,
+    LG_RU_E,
+    LG_RU_KHA,
+    LG_RU_HRD_SGN,
+    LG_RU_YO,
+
     // end of ru en symbols range
     LG_END,
 };
