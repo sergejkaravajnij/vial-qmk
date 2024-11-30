@@ -32,6 +32,9 @@ NO_USB_STARTUP_CHECK = yes
 WPM_ENABLE = yes
 RAW_ENABLE = yes
 
+UNICODE_COMMON = yes
+UNICODE_ENABLE = yes
+
 SRC += keyboards/ergohaven/ergohaven_main.c
 SRC += keyboards/ergohaven/ergohaven_ruen.c
 SRC += keyboards/ergohaven/ergohaven_oled.c

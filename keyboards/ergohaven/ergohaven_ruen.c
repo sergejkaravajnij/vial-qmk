@@ -139,6 +139,13 @@ bool pre_process_record_ruen(uint16_t keycode, keyrecord_t *record) {
                 set_lang(LANG_EN);
             }
             break;
+        case QK_UNICODE ... QK_UNICODE_MAX: {
+            uint8_t lang = cur_lang;
+            set_lang(LANG_EN);
+            should_revert_ru = should_revert_ru || (cur_lang != lang);
+            revert_time   = timer_read32();
+            break;
+        }
     }
 
     if (english_word) {
