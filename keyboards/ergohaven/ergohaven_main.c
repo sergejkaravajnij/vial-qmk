@@ -72,7 +72,7 @@ bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
             } else {
                 unregister_code(KC_TAB);
             }
-            break;
+            return false;
 
         case WPREV:
             if (record->event.pressed) {
@@ -85,7 +85,7 @@ bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
             } else {
                 unregister_code16(S(KC_TAB));
             }
-            break;
+            return false;
 
         case KC_CAPS:
             if (record->event.pressed) {
@@ -129,6 +129,26 @@ bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
                 send_string("Mac mode: ");
                 send_string(keymap_config.swap_lctl_lgui ? "on\n" : "off\n");
 
+                send_string("Unicode mode: ");
+                uint8_t uc_input_mode = get_unicode_input_mode();
+                switch (uc_input_mode) {
+                    case UNICODE_MODE_MACOS:
+                        send_string("Mac\n");
+                        break;
+                    case UNICODE_MODE_LINUX:
+                        send_string("Linux\n");
+                        break;
+                    case UNICODE_MODE_WINDOWS:
+                        send_string("Windows\n");
+                        break;
+                    case UNICODE_MODE_WINCOMPOSE:
+                        send_string("WinCompose\n");
+                        break;
+                    default:
+                        send_string("error\n");
+                        break;
+                }
+
                 send_string("RuEn mode: ");
                 uint8_t ruen_mode = get_ruen_toggle_mode();
                 if (ruen_mode == TG_DEFAULT)
@@ -145,10 +165,9 @@ bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
             }
             return false;
         }
-
-        case LG_START ... LG_END:
-            return process_record_ruen(keycode, record);
     }
+
+    if (!process_record_ruen(keycode, record)) return false;
 
     return process_record_user(keycode, record);
 }
@@ -172,6 +191,15 @@ bool caps_word_press_user(uint16_t keycode) {
         // Keycodes that continue Caps Word, with shift applied.
         case KC_A ... KC_Z:
         case KC_MINS:
+        // For some reason weak mode doesn't work on this keycodes
+        // so we additionaly add weak mode in process_russian_letter(...)
+        case LG_RU_BE:
+        case LG_RU_YU:
+        case LG_RU_ZHE:
+        case LG_RU_E:
+        case LG_RU_HRD_SGN:
+        case LG_RU_KHA:
+        case LG_RU_YO:
             add_weak_mods(MOD_BIT(KC_LSFT)); // Apply shift to next key.
             return true;
 
@@ -219,6 +247,10 @@ layer_state_t default_layer_state_set_kb(layer_state_t state) {
 }
 
 layer_state_t layer_state_set_kb(layer_state_t state) {
+    if (is_alt_tab_active) {
+        unregister_code(keymap_config.swap_lctl_lgui ? KC_LGUI : KC_LALT);
+        is_alt_tab_active = false;
+    }
     state = layer_state_set_user(state);
 #ifdef RGBLIGHT_ENABLE
     layer_state_set_rgb(state | default_layer_state);
