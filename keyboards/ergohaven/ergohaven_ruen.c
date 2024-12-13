@@ -18,6 +18,9 @@ static bool english_word = false;
 static bool mac_layout = false;
 
 void set_lang(uint8_t lang) {
+    uint8_t mods = get_mods();
+    if (mods != 0) del_mods(mods);
+
     switch (tg_mode) {
         case TG_DEFAULT:
             if (cur_lang == lang) return;
@@ -49,6 +52,7 @@ void set_lang(uint8_t lang) {
             break;
     }
     cur_lang = lang;
+    if (mods != 0) add_mods(mods);
 }
 
 void set_ruen_toggle_mode(uint8_t mode) {
