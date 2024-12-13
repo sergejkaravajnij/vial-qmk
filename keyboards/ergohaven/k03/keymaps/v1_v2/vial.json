@@ -10,8 +10,8 @@
 #include "keyboards/ergohaven/vial_custom_keycodes.json"
   "layouts": {
     "labels": [
-      "No left encoder",
-      "No right encoder",
+      "Hide left encoder",
+      "Hide right encoder",
       [
         "OLED Master",
         "Status (classic)",
