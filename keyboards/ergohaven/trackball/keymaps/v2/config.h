@@ -4,4 +4,4 @@
 #define VIAL_UNLOCK_COMBO_ROWS { 0, 0 }
 #define VIAL_UNLOCK_COMBO_COLS { 0, 1 }
 
-#define ADNS9800_CS_PIN GP9
+#define PMW33XX_CS_PIN GP9
