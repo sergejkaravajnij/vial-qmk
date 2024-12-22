@@ -19,11 +19,10 @@ static bool mac_layout = false;
 
 void set_lang(uint8_t lang) {
     uint8_t mods = get_mods();
-    if (mods != 0) del_mods(mods);
-
     switch (tg_mode) {
         case TG_DEFAULT:
             if (cur_lang == lang) return;
+            if (mods != 0) del_mods(mods);
             if (keymap_config.swap_lctl_lgui) {
                 register_code(KC_LCTL);
                 tap_code(KC_SPACE);
@@ -37,22 +36,31 @@ void set_lang(uint8_t lang) {
                 unregister_code(KC_LGUI);
                 wait_ms(50);
             }
+            if (mods != 0) add_mods(mods);
             break;
         case TG_M0:
             if (cur_lang == lang) return;
+            if (mods != 0) del_mods(mods);
             dynamic_keymap_macro_send(QK_MACRO_0 - QK_MACRO);
+            if (mods != 0) add_mods(mods);
             break;
         case TG_M1M2:
             if (lang == LANG_EN) {
-                if (!should_revert_ru) dynamic_keymap_macro_send(QK_MACRO_1 - QK_MACRO);
-            } else
+                if (!should_revert_ru) {
+                    if (mods != 0) del_mods(mods);
+                    dynamic_keymap_macro_send(QK_MACRO_1 - QK_MACRO);
+                    if (mods != 0) add_mods(mods);
+                }
+            } else {
+                if (mods != 0) del_mods(mods);
                 dynamic_keymap_macro_send(QK_MACRO_2 - QK_MACRO);
+                if (mods != 0) add_mods(mods);
+            }
             break;
         default:
             break;
     }
     cur_lang = lang;
-    if (mods != 0) add_mods(mods);
 }
 
 void set_ruen_toggle_mode(uint8_t mode) {
