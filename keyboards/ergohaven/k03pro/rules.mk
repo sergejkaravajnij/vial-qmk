@@ -36,6 +36,9 @@ RAW_ENABLE = yes
 BACKLIGHT_ENABLE = yes
 BACKLIGHT_DRIVER = pwm
 
+UNICODE_COMMON = yes
+UNICODE_ENABLE = yes
+
 SRC += keyboards/ergohaven/ergohaven_rgb.c
 SRC += keyboards/ergohaven/ergohaven_main.c
 SRC += keyboards/ergohaven/ergohaven_ruen.c

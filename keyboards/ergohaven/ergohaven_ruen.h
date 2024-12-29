@@ -2,7 +2,9 @@
 #include "ergohaven.h"
 
 enum ruen_custom_keycodes {
-    LG_TOGGLE = LAYER_PREV + 2,
+    LG_START = LAYER_PREV + 2,
+
+    LG_TOGGLE = LG_START,
     LG_SYNC,
     LG_SET_EN,
     LG_SET_RU,
@@ -10,9 +12,7 @@ enum ruen_custom_keycodes {
     LG_SET_M1M2,
     LG_SET_DFLT,
 
-    // symbols exist in russian and english layout
-    LG_RU_EN_START,
-    LG_DOT = LG_RU_EN_START,
+    LG_DOT,
     LG_COMMA,
     LG_SCLN,
     LG_COLON,
@@ -47,6 +47,19 @@ enum ruen_custom_keycodes {
     LG_STORE,
     LG_REVERT,
 
+    // Additional keycodes for Mac
+    LG_PERC,
+    LG_TG_MAC,
+
+    // Russian symbols (do nothing on English layout)
+    LG_RU_BE,
+    LG_RU_YU,
+    LG_RU_ZHE,
+    LG_RU_E,
+    LG_RU_KHA,
+    LG_RU_HRD_SGN,
+    LG_RU_YO,
+
     // end of ru en symbols range
     LG_END,
 };
@@ -64,3 +77,9 @@ void housekeeping_task_ruen(void);
 uint8_t get_cur_lang(void);
 
 void set_ruen_toggle_mode(uint8_t mode);
+
+uint8_t get_ruen_toggle_mode(void);
+
+void set_ruen_mac_layout(bool mac_layout);
+
+bool get_ruen_mac_layout(void);

@@ -1,0 +1,59 @@
+{
+    "name": "Trackball",
+    "matrix": {
+        "rows": 0,
+        "cols": 0
+    },
+    "layouts": {
+        "labels": [
+            [
+                "Mode",
+                "NumLock - Scroll, ScrollLock - Sniper",
+                "NumLock - Sniper, ScrollLock - Scroll",
+                "NumLock - Text, ScrollLock - Scroll"
+            ],
+            [
+                "Orientation",
+                "0°",
+                "90°",
+                "180°",
+                "270°"
+            ],
+            [
+                "DPI",
+                "100",
+                "200",
+                "300",
+                "400",
+                "500",
+                "600",
+                "800",
+                "1000",
+                "1200",
+                "1600",
+                "2000",
+                "2500",
+                "3200",
+                "4000",
+                "5000"
+            ],
+            [
+                "Sniper divisor",
+                "2",
+                "4"
+            ],
+            [
+                "Scroll sensitivity",
+                "1/6",
+                "1/8",
+                "1/11",
+                "1/16",
+                "1/23",
+                "1/32",
+                "1/45",
+                "1/64"
+            ]
+        ],
+        "keymap": []
+    }
+}

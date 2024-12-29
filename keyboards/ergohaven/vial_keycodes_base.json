@@ -1,14 +1,14 @@
-        {"name": "",
-        "title": "Not using",
-        "shortName": ""
+        {"name": "EH_PRINF",
+        "title": "Print information about firmware and modes",
+        "shortName": "Print\nInfo"
         },
-        {"name": "",
-        "title": "Not using",
-        "shortName": ""
+        {"name": "WRD_NXT",
+        "title": "Jump to next word",
+        "shortName": "Next\nWord"
         },
-        {"name": "",
-        "title": "Not using",
-        "shortName": ""
+        {"name": "WRD_PRV",
+        "title": "Jump to previous word",
+        "shortName": "Prev\nWord"
         },
         {"name": "WNEXT",
         "title": "Holds Alt and taps Tab, then waits for 650ms, if the key is tapped again, it will send another Tab; if there is no tap, Alt will turn off. This allows you to cycle through windows with only one key",

@@ -136,4 +136,40 @@
         {"name": "LG_REVERT",
         "title": "Revert to stored layout (useful for macros)",
         "shortName": "RuEn\nRevert"
+        },
+        {"name": "LG_PERC",
+        "title": "Send % (differs on MacOS layout)",
+        "shortName": "RuEn\n%"
+        },
+        {"name": "LG_TG_MAC",
+        "title": "Toggle to use MacOS layout for Russian instead of PC layout",
+        "shortName": "RuEn\nMac Tg"
+        },
+        {"name": "LG_RU_BE",
+        "title": "Send Б",
+        "shortName": "RuEn\nБ"
+        },
+        {"name": "LG_RU_YU",
+        "title": "Send Ю",
+        "shortName": "RuEn\nЮ"
+        },
+        {"name": "LG_RU_ZHE",
+        "title": "Send Ж",
+        "shortName": "RuEn\nЖ"
+        },
+        {"name": "LG_RU_E",
+        "title": "Send Э",
+        "shortName": "RuEn\nЭ"
+        },
+        {"name": "LG_RU_KHA",
+        "title": "Send Х",
+        "shortName": "RuEn\nХ"
+        },
+        {"name": "LG_RU_HRD_SGN",
+        "title": "Send Ъ",
+        "shortName": "RuEn\nЪ"
+        },
+        {"name": "LG_RU_YO",
+        "title": "Send Ё",
+        "shortName": "RuEn\nЁ"
         }

@@ -4,7 +4,7 @@
 
 typedef enum { NL_SCROLL_SL_SNIPER, NL_SNIPER_SL_SCROLL, NL_TEXT_SL_SCROLL } trackball_mode_t;
 typedef enum { ROT_0, ROT_90, ROT_180, ROT_270 } orientation_t;
-static const int DPI_TABLE[]        = {400, 500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3200, 4000, 5000, 6300, 8000, 8200};
+extern const int DPI_TABLE[15];
 static const int DIV_TABLE[]        = {6, 8, 11, 16, 23, 32, 45, 64};
 static const int SNIPER_DIV_TABLE[] = {2, 4};
 

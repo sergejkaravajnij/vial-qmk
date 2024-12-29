@@ -27,10 +27,13 @@ DYNAMIC_MACRO_ENABLE = yes
 CAPS_WORD_ENABLE = yes
 REPEAT_KEY_ENABLE = yes
 AUTO_SHIFT_ENABLE = yes
-NO_USB_STARTUP_CHECK = yes
+NO_USB_STARTUP_CHECK = no
 
 WPM_ENABLE = yes
 RAW_ENABLE = yes
+
+UNICODE_COMMON = yes
+UNICODE_ENABLE = yes
 
 SRC += keyboards/ergohaven/ergohaven_main.c
 SRC += keyboards/ergohaven/ergohaven_ruen.c

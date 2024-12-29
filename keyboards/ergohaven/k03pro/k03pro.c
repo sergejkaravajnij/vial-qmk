@@ -139,6 +139,23 @@ void housekeeping_task_user(void) {
         display_housekeeping_task();
     }
 
+    if (is_touch_side() && is_keyboard_master()) {
+        static bool is_display_on = true;
+
+        uint32_t activity_elapsed = last_input_activity_elapsed();
+        if (activity_elapsed > EH_TIMEOUT) {
+            if (is_display_on) {
+                backlight_level_noeeprom(0);
+                is_display_on = false;
+            }
+        } else {
+            if (!is_display_on) {
+                backlight_init();
+                is_display_on = true;
+            }
+        }
+    }
+
     if (is_display_side() && is_keyboard_master()) {
         static uint32_t       last_sync = 0;
         static touch_config_t slave     = {.raw = 0};
