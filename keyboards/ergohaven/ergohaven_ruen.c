@@ -191,7 +191,13 @@ bool process_record_ruen(uint16_t keycode, keyrecord_t *record) {
     if (!(LG_START <= keycode && keycode < LG_END)) return true;
 
     if (keycode == LG_MOD) {
-        lang_toggle();
+        static uint16_t press_timer = 0;
+        if (record->event.pressed) {
+            lang_toggle();
+            press_timer = timer_read();
+        } else {
+            if (timer_elapsed(press_timer) >= get_tapping_term(keycode, record)) lang_toggle();
+        }
         return false;
     }
 

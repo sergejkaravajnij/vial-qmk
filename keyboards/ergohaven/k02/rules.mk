@@ -40,3 +40,4 @@ SRC += keyboards/ergohaven/ergohaven_ruen.c
 SRC += keyboards/ergohaven/ergohaven_oled.c
 SRC += oled/ergohaven_dark.c
 SRC += keyboards/ergohaven/hid.c
+SRC += keyboards/ergohaven/ergohaven_pointing.c

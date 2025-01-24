@@ -1,38 +1,27 @@
 #include QMK_KEYBOARD_H
 
 #include "quantum.h"
+#include "ergohaven_pointing.h"
 
-typedef enum { NL_SCROLL_SL_SNIPER, NL_SNIPER_SL_SCROLL, NL_TEXT_SL_SCROLL } trackball_mode_t;
-typedef enum { ROT_0, ROT_90, ROT_180, ROT_270 } orientation_t;
+typedef enum { NL_SCROLL_SL_SNIPER, NL_SNIPER_SL_SCROLL, NL_TEXT_SL_SCROLL, LED_BLINKS } trackball_mode_t;
 extern const int DPI_TABLE[15];
-static const int DIV_TABLE[]        = {6, 8, 11, 16, 23, 32, 45, 64};
-static const int SNIPER_DIV_TABLE[] = {2, 4};
+const int32_t    SNIPER_TABLE[15] = {2, 3, 4, 5};
+const int32_t    SCROLL_TABLE[15] = {6, 8, 11, 16, 23, 32, 45, 64};
+const int32_t    TEXT_TABLE[15]   = {6, 8, 11, 16, 23, 32, 45, 64};
 
 typedef union {
     uint32_t raw;
     struct {
+        uint8_t text_mode : 3;
         uint8_t scroll_mode : 3;
-        uint8_t sniper_mode : 1;
+        uint8_t sniper_mode : 2;
         uint8_t dpi_mode : 4;
         uint8_t orientation : 2;
-        uint8_t mode : 3;
+        uint8_t mode : 2;
     };
 } vial_config_t;
 
 static vial_config_t vial_config;
-
-static led_t leds;
-
-static int32_t scroll_divisor = 32;
-
-static bool scroll_enabled = false;
-static bool sniper_enabled = false;
-static bool text_enabled   = false;
-
-static int32_t accumulated_h = 0;
-static int32_t accumulated_v = 0;
-
-static orientation_t orientation;
 
 int get_dpi(uint8_t dpi_mode) {
     if (dpi_mode < ARRAY_SIZE(DPI_TABLE))
@@ -41,120 +30,142 @@ int get_dpi(uint8_t dpi_mode) {
         return DPI_TABLE[0];
 }
 
-int get_scroll_div(uint8_t div_mode) {
-    if (div_mode < ARRAY_SIZE(DIV_TABLE))
-        return DIV_TABLE[div_mode];
-    else
-        return DIV_TABLE[0];
-}
-
-int get_sniper_div(uint8_t mode) {
-    if (mode < ARRAY_SIZE(SNIPER_DIV_TABLE))
-        return SNIPER_DIV_TABLE[mode];
-    else
-        return SNIPER_DIV_TABLE[0];
-}
-
-void update_settings(void) {
+void update_settings(led_t leds) {
     switch (vial_config.mode) {
-        default:
         case NL_SCROLL_SL_SNIPER:
-            scroll_enabled = leds.num_lock;
-            sniper_enabled = leds.scroll_lock;
-            text_enabled   = false;
+            if (leds.num_lock && !leds.scroll_lock)
+                set_pointing_mode(POINTING_MODE_SCROLL);
+            else if (!leds.num_lock && leds.scroll_lock)
+                set_pointing_mode(POINTING_MODE_SNIPER);
+            else
+                set_pointing_mode(POINTING_MODE_NORMAL);
             break;
 
         case NL_SNIPER_SL_SCROLL:
-            scroll_enabled = leds.scroll_lock;
-            sniper_enabled = leds.num_lock;
-            text_enabled   = false;
+            if (leds.num_lock && !leds.scroll_lock)
+                set_pointing_mode(POINTING_MODE_SNIPER);
+            else if (!leds.num_lock && leds.scroll_lock)
+                set_pointing_mode(POINTING_MODE_SCROLL);
+            else
+                set_pointing_mode(POINTING_MODE_NORMAL);
             break;
 
         case NL_TEXT_SL_SCROLL:
-            scroll_enabled = leds.scroll_lock;
-            sniper_enabled = false;
-            if (!scroll_enabled) text_enabled = leds.num_lock;
+            if (leds.num_lock && !leds.scroll_lock)
+                set_pointing_mode(POINTING_MODE_TEXT);
+            else if (!leds.num_lock && leds.scroll_lock)
+                set_pointing_mode(POINTING_MODE_SCROLL);
+            else
+                set_pointing_mode(POINTING_MODE_NORMAL);
+            break;
+
+        default:
             break;
     }
-    scroll_divisor = get_scroll_div(vial_config.scroll_mode);
-    orientation    = vial_config.orientation;
-    int base_dpi   = get_dpi(vial_config.dpi_mode);
-    int div        = sniper_enabled ? get_sniper_div(vial_config.sniper_mode) : 1;
-    pointing_device_set_cpi(base_dpi / div);
 }
 
 void via_set_layout_options_kb(uint32_t value) {
+    dprintf("via_set_layout_options_kb %lx\n", value);
     vial_config.raw = value;
-    update_settings();
+    pointing_device_set_cpi(get_dpi(vial_config.dpi_mode));
+    set_scroll_sens(SCROLL_TABLE[vial_config.scroll_mode]);
+    set_sniper_sens(SNIPER_TABLE[vial_config.sniper_mode]);
+    set_text_sens(TEXT_TABLE[vial_config.text_mode]);
+    set_orientation(vial_config.orientation);
+    update_settings(host_keyboard_led_state());
 }
 
+static led_t cur_leds;
+static led_t start_leds;
+static led_t end_leds;
+
 bool led_update_user(led_t led_state) {
-    leds = led_state;
-    update_settings();
+    if (vial_config.mode == LED_BLINKS) {
+        static uint32_t t = 0;
+
+        uint32_t elapsed = timer_elapsed32(t);
+
+        t = timer_read32();
+
+        led_t changed = {.raw = cur_leds.raw ^ led_state.raw};
+        cur_leds      = led_state;
+
+        if (elapsed > 100) {
+            start_leds.raw = changed.raw;
+            end_leds.raw   = 0;
+        } else if (elapsed < 20 && end_leds.raw == 0)
+            start_leds.raw |= changed.raw;
+        else if (elapsed >= 20)
+            end_leds.raw = changed.raw;
+        else if (elapsed < 20 && end_leds.raw != 0)
+            end_leds.raw |= changed.raw;
+
+        dprintf("t=%lu num=%d scl=%d cps=%d\n", elapsed, changed.num_lock, changed.scroll_lock, changed.caps_lock);
+        dprintf("start=%d end=%d\n", start_leds.raw, end_leds.raw);
+    } else {
+        update_settings(led_state);
+    }
     return true;
 }
 
-report_mouse_t pointing_device_task_user(report_mouse_t mrpt) {
-    switch (orientation) {
-        int8_t tmp;
-        case ROT_0:
-            break;
-        case ROT_270:
-            tmp    = mrpt.x;
-            mrpt.x = mrpt.y;
-            mrpt.y = -tmp;
-            break;
-        case ROT_180:
-            mrpt.x = -mrpt.x;
-            mrpt.y = -mrpt.y;
-            break;
-        case ROT_90:
-            tmp    = mrpt.x;
-            mrpt.x = -mrpt.y;
-            mrpt.y = tmp;
-            break;
-    }
-
-    if (scroll_enabled || text_enabled) {
-        accumulated_h += mrpt.x;
-        accumulated_v -= mrpt.y;
-
-        int shift_x = accumulated_h / scroll_divisor;
-        int shift_y = accumulated_v / scroll_divisor;
-
-        accumulated_h -= shift_x * scroll_divisor;
-        accumulated_v -= shift_y * scroll_divisor;
-
-        mrpt.x = 0;
-        mrpt.y = 0;
-
-        if (scroll_enabled) {
-            mrpt.h = shift_x;
-            mrpt.v = shift_y;
-        } else if (text_enabled) {
-            while (shift_x > 0) {
-                tap_code(KC_RIGHT);
-                shift_x--;
-            }
-            while (shift_x < 0) {
-                tap_code(KC_LEFT);
-                shift_x++;
-            }
-            while (shift_y > 0) {
-                tap_code(KC_UP);
-                shift_y--;
-            }
-            while (shift_y < 0) {
-                tap_code(KC_DOWN);
-                shift_y++;
-            }
-        }
-    }
-
-    return mrpt;
+void pointing_device_init_kb(void) {
+#ifdef CONSOLE_ENABLE
+    debug_enable = true;
+#endif
+    via_set_layout_options_kb(via_get_layout_options());
+    set_led_blinks(false);
 }
 
-void pointing_device_init_kb(void) {
-    vial_config.raw = via_get_layout_options();
-    update_settings();
+void housekeeping_task_user(void) {
+#ifdef CONSOLE_ENABLE
+    {
+        static uint32_t last_sync = 0;
+
+        if ((last_sync == 0 || timer_elapsed32(last_sync) > 500)) {
+            uint16_t real_dpi   = pointing_device_get_cpi();
+            uint16_t config_dpi = get_dpi(vial_config.dpi_mode);
+            if (real_dpi != config_dpi) {
+                pointing_device_set_cpi(config_dpi);
+                dprintf("sync touch settings %d (real %d)\n", config_dpi, real_dpi);
+            }
+            last_sync = timer_read32();
+        }
+    }
+#endif
+
+    if (vial_config.mode == LED_BLINKS && start_leds.raw != 0 && start_leds.raw == end_leds.raw) {
+        switch (start_leds.raw) {
+            case 1:
+                set_pointing_mode(POINTING_MODE_NORMAL);
+                dprintf("set normal mode\n");
+                break;
+            case 4:
+                set_pointing_mode(POINTING_MODE_SNIPER);
+                dprintf("set sniper mode\n");
+                break;
+            case 2:
+                set_pointing_mode(POINTING_MODE_SCROLL);
+                dprintf("set scroll mode\n");
+                break;
+            case 5:
+                set_pointing_mode(POINTING_MODE_TEXT);
+                dprintf("set text mode\n");
+                break;
+            case 3:
+                set_pointing_mode(POINTING_MODE_USR1);
+                dprintf("set mode user 1\n");
+                break;
+            case 6:
+                set_pointing_mode(POINTING_MODE_USR2);
+                dprintf("set mode user 2\n");
+                break;
+            case 7:
+                set_pointing_mode(POINTING_MODE_USR3);
+                dprintf("set mode user 3\n");
+                break;
+            default:
+                break;
+        }
+        start_leds.raw = 0;
+    }
 }

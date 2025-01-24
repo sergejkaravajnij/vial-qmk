@@ -1,7 +1,7 @@
 #pragma once
 #include "quantum.h"
 
-#define EH_VERSION_STR "3.8.3"
+#define EH_VERSION_STR "3.8.4"
 
 #ifndef EH_SHORT_PRODUCT_NAME
 #    define EH_SHORT_PRODUCT_NAME PRODUCT
@@ -60,7 +60,14 @@ enum custom_keycodes {
     WPREV,
     LAYER_NEXT,
     LAYER_PREV,
-    EH_RESERV1,
+    EH_RSRV1,
+
+    EH_RSRV2 = QK_KB + 51,
+    EH_RSRV3,
+    EH_RSRV4,
+    EH_RSRV5,
+    EH_RSRV6,
+    EH_RSRV7,
 };
 
 // 1st layer on the cycle

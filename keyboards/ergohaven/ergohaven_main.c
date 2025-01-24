@@ -3,6 +3,7 @@
 #include "ergohaven_oled.h"
 #include "ergohaven_rgb.h"
 #include "ergohaven_display.h"
+#include "ergohaven_pointing.h"
 #include "hid.h"
 #include "version.h"
 
@@ -16,14 +17,23 @@ typedef union {
 
 kb_config_t kb_config;
 
+void kb_config_update(kb_config_t new_config) {
+    if (new_config.raw != kb_config.raw) {
+        kb_config = new_config;
+        eeconfig_update_kb(kb_config.raw);
+    }
+}
+
 void kb_config_update_ruen_toggle_mode(uint8_t mode) {
-    kb_config.ruen_toggle_mode = mode;
-    eeconfig_update_kb(kb_config.raw);
+    kb_config_t new_config      = kb_config;
+    new_config.ruen_toggle_mode = mode;
+    kb_config_update(new_config);
 }
 
 void kb_config_update_ruen_mac_layout(bool mac_layout) {
-    kb_config.ruen_mac_layout = mac_layout;
-    eeconfig_update_kb(kb_config.raw);
+    kb_config_t new_config     = kb_config;
+    new_config.ruen_mac_layout = mac_layout;
+    kb_config_update(new_config);
 }
 
 #ifdef AUDIO_ENABLE
@@ -162,12 +172,17 @@ bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
 
                 send_string("RuEn layout: ");
                 send_string(get_ruen_mac_layout() ? "Mac\n" : "PC\n");
+
+                send_string("Led blinks: ");
+                send_string(get_led_blinks() ? "enabled\n" : "disabled\n");
             }
             return false;
         }
     }
 
     if (!process_record_ruen(keycode, record)) return false;
+
+    if (!process_record_pointing(keycode, record)) return false;
 
     return process_record_user(keycode, record);
 }
@@ -227,6 +242,10 @@ void matrix_scan_kb(void) { // The very important timer.
 }
 
 void keyboard_post_init_kb(void) {
+#ifdef CONSOLE_ENABLE
+    debug_enable = true;
+#endif
+
     kb_config.raw = eeconfig_read_kb();
     set_ruen_toggle_mode(kb_config.ruen_toggle_mode);
     set_ruen_mac_layout(kb_config.ruen_mac_layout);
@@ -259,6 +278,28 @@ layer_state_t layer_state_set_kb(layer_state_t state) {
 }
 
 void housekeeping_task_kb(void) {
+#ifdef CONSOLE_ENABLE
+    {
+        static uint32_t t0 = 0;
+        uint32_t        dt = timer_elapsed32(t0);
+        if (t0 == 0) dt = 0;
+        t0 = timer_read32();
+
+        static uint32_t last_print = 0;
+        static uint32_t max_dt     = 0;
+        static uint32_t hz         = 0;
+
+        max_dt = MAX(max_dt, dt);
+        hz += 1;
+        if (last_print == 0 || timer_elapsed32(last_print) > 1000) {
+            dprintf("hz=%ld max_dt=%ld \n", hz, max_dt);
+            max_dt     = 0;
+            hz         = 0;
+            last_print = timer_read32();
+        }
+    }
+#endif
+
     uint32_t activity_elapsed = last_input_activity_elapsed();
 
     if (activity_elapsed > EH_TIMEOUT) {
