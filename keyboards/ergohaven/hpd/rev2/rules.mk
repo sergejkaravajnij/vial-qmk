@@ -4,11 +4,10 @@ BOOTLOADER = rp2040
 # ALLOW_WARNINGS = yes
 # PICO_INTRINSICS_ENABLED = no
 
-# Build Options
-ENCODER_ENABLE = no
-
-POINTING_DEVICE_ENABLE = yes
-POINTING_DEVICE_DRIVER = azoteq_iqs5xx
+# Build options
+SLEEP_LED_ENABLE = no
+SPLIT_KEYBOARD = yes
+SERIAL_DRIVER = vendor
 
 NKRO_ENABLE = yes
 BOOTMAGIC_ENABLE = yes
@@ -23,32 +22,14 @@ DYNAMIC_MACRO_ENABLE = yes
 CAPS_WORD_ENABLE = yes
 REPEAT_KEY_ENABLE = yes
 AUTO_SHIFT_ENABLE = yes
-
-SPLIT_KEYBOARD = yes
-SERIAL_DRIVER = vendor
-RGBLIGHT_ENABLE = yes
-
-# OPT_DEFS = -O2
-QUANTUM_PAINTER_ENABLE = yes
-QUANTUM_PAINTER_DRIVERS += st7789_spi
-QUANTUM_PAINTER_LVGL_INTEGRATION = yes
+NO_USB_STARTUP_CHECK = no
 RAW_ENABLE = yes
-BACKLIGHT_ENABLE = yes
-BACKLIGHT_DRIVER = pwm
 
 UNICODE_COMMON = yes
 UNICODE_ENABLE = yes
 
-SRC += keyboards/ergohaven/ergohaven_rgb.c
 SRC += keyboards/ergohaven/ergohaven_main.c
 SRC += keyboards/ergohaven/ergohaven_ruen.c
 SRC += keyboards/ergohaven/hid.c
 SRC += keyboards/ergohaven/ergohaven_pointing.c
-
-SRC += keyboards/ergohaven/ergohaven_display.c
-SRC += keyboards/ergohaven/lvgl_helpers.c
-SRC += keyboards/ergohaven/ergohaven_symbols_20.c
-SRC += keyboards/ergohaven/ergohaven_symbols_28.c
-SRC += keyboards/ergohaven/ergohaven_logo.c
-SRC += keyboards/ergohaven/ergohaven_display_modes.c
 SRC += keyboards/ergohaven/features/layer_lock.c

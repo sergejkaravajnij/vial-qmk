@@ -137,8 +137,11 @@ void encoder_driver_init(void) {
         const pin_t encoders_pad_a_right[] = ENCODERS_PAD_A_RIGHT;
         const pin_t encoders_pad_b_right[] = ENCODERS_PAD_B_RIGHT;
         for (uint8_t i = 0; i < thisCount; i++) {
+            #pragma GCC diagnostic push
+            #pragma GCC diagnostic ignored "-Warray-bounds"
             encoders_pad_a[i] = encoders_pad_a_right[i];
             encoders_pad_b[i] = encoders_pad_b_right[i];
+            #pragma GCC diagnostic pop
         }
     }
 #endif // defined(SPLIT_KEYBOARD) && defined(ENCODERS_PAD_A_RIGHT) && defined(ENCODERS_PAD_B_RIGHT)

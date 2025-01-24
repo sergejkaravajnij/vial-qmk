@@ -4,13 +4,17 @@
 #include "ergohaven_ruen.h"
 #include "ergohaven_rgb.h"
 #include "ergohaven_display.h"
+#include "ergohaven_pointing.h"
 
 typedef union {
     uint32_t raw;
     struct {
-        uint8_t scroll_divisor : 3;
-        bool    invert_scroll : 1;
+        uint8_t text_mode : 3;
+        uint8_t scroll_mode : 3;
+        uint8_t sniper_mode : 2;
         uint8_t dpi_mode : 3;
+        bool    invert_scroll : 1;
+        uint8_t auto_mouse_layer : 4;
     };
 } vial_config_t;
 
@@ -48,48 +52,30 @@ bool split_get_caps_word(void) {
     return is_keyboard_master() ? is_caps_word_on() : display_config.caps_word;
 }
 
-static const uint16_t DPI_TABLE[] = {320, 400, 500, 630, 800, 1000};
+static const uint16_t DPI_TABLE[]      = {320, 400, 500, 630, 800, 1000};
+const int32_t         SNIPER_TABLE[15] = {2, 3, 4, 5};
+const int32_t         SCROLL_TABLE[15] = {6, 8, 11, 16, 23, 32, 45, 64};
+const int32_t         TEXT_TABLE[15]   = {6, 8, 11, 16, 23, 32, 45, 64};
 
 uint16_t get_dpi(uint8_t dpi_mode) {
     if (dpi_mode < ARRAY_SIZE(DPI_TABLE))
         return DPI_TABLE[dpi_mode];
     else
-        return 400;
-}
-
-static int32_t scroll_divisor_x = 8;
-static int32_t scroll_divisor_y = 8;
-
-int get_scroll_div(uint8_t div_mode) {
-    switch (div_mode) {
-        case 0:
-            return 6;
-        case 1:
-            return 8;
-        case 2:
-            return 11;
-        case 3:
-            return 16;
-        default:
-        case 4:
-            return 23;
-        case 5:
-            return 32;
-        case 6:
-            return 45;
-        case 7:
-            return 64;
-    }
+        return DPI_TABLE[0];
 }
 
 void via_set_layout_options_kb(uint32_t value) {
     dprintf("via_set_layout_options_kb %lx\n", value);
-    vial_config.raw  = value;
-    scroll_divisor_x = get_scroll_div(vial_config.scroll_divisor);
-    scroll_divisor_y = get_scroll_div(vial_config.scroll_divisor);
+    vial_config.raw = value;
 
     touch_config.raw = 0;
     touch_config.dpi = get_dpi(vial_config.dpi_mode);
+
+    set_scroll_sens(SCROLL_TABLE[vial_config.scroll_mode]);
+    set_sniper_sens(SNIPER_TABLE[vial_config.sniper_mode]);
+    set_text_sens(TEXT_TABLE[vial_config.text_mode]);
+    set_invert_scroll(vial_config.invert_scroll);
+    set_automouse(vial_config.auto_mouse_layer);
 }
 
 void sync_touch(uint8_t in_buflen, const void* in_data, uint8_t out_buflen, void* out_data) {
@@ -118,23 +104,6 @@ bool is_touch_side(void) {
 }
 
 void housekeeping_task_user(void) {
-    {
-        static uint32_t t0 = 0;
-        uint32_t        dt = timer_elapsed32(t0);
-        if (t0 == 0) dt = 0;
-        t0 = timer_read32();
-
-        static uint32_t last_print = 0;
-        static uint32_t max_dt     = 0;
-
-        max_dt = MAX(max_dt, dt);
-        if (last_print == 0 || timer_elapsed32(last_print) > 1000) {
-            dprintf("housekeeping dt %ld\n", max_dt);
-            max_dt     = 0;
-            last_print = timer_read32();
-        }
-    }
-
     if (is_display_enabled() && is_display_side()) {
         display_housekeeping_task();
     }
@@ -206,31 +175,6 @@ void housekeeping_task_user(void) {
     }
 }
 
-report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
-    static int32_t scroll_accumulated_h = 0;
-    static int32_t scroll_accumulated_v = 0;
-
-    if (mouse_report.h != 0 || mouse_report.v != 0) {
-        if (vial_config.invert_scroll) {
-            scroll_accumulated_h -= mouse_report.h;
-            scroll_accumulated_v += mouse_report.v;
-        } else {
-            scroll_accumulated_h += mouse_report.h;
-            scroll_accumulated_v -= mouse_report.v;
-        }
-
-        mouse_report.h = scroll_accumulated_h / scroll_divisor_x;
-        mouse_report.v = scroll_accumulated_v / scroll_divisor_y;
-
-        scroll_accumulated_h -= mouse_report.h * scroll_divisor_x;
-        scroll_accumulated_v -= mouse_report.v * scroll_divisor_y;
-
-        mouse_report.x = 0;
-        mouse_report.y = 0;
-    }
-    return mouse_report;
-}
-
 void keyboard_post_init_user(void) {
     if (is_display_side()) {
         display_init_kb();
@@ -238,6 +182,7 @@ void keyboard_post_init_user(void) {
 
     vial_config.raw = via_get_layout_options();
     via_set_layout_options_kb(vial_config.raw);
+    set_led_blinks(false);
 
     transaction_register_rpc(RPC_SYNC_TOUCH, sync_touch);
     transaction_register_rpc(RPC_SYNC_DISPLAY, sync_display);

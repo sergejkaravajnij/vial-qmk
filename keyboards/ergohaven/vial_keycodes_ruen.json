@@ -1,175 +1,47 @@
-        {"name": "LG_TOGGLE",
-        "title": "Toggle language",
-        "shortName": "RuEn\nToggle"
-        },
-        {"name": "LG_SYNC",
-        "title": "Sync language",
-        "shortName": "RuEn\nSync"
-        },
-        {"name": "LG_SET_EN",
-        "title": "Set English language",
-        "shortName": "RuEn\nEn"
-        },
-        {"name": "LG_SET_RU",
-        "title": "Toggle Russian language",
-        "shortName": "RuEn\nRu"
-        },
+,{"name": "LG_TOGGLE", "shortName": "RuEn\nToggle", "title": "Toggle language"}
+,{"name": "LG_SYNC", "shortName": "RuEn\nSync", "title": "Sync language"}
+,{"name": "LG_SET_EN", "shortName": "RuEn\nEn", "title": "Set English language"}
+,{"name": "LG_SET_RU", "shortName": "RuEn\nRu", "title": "Toggle Russian language"}
 
-        {"name": "LG_SET_M0",
-        "title": "Set toggle language to Macro 0",
-        "shortName": "RuEn\nM0"
-        },
-        {"name": "LG_SET_M1M2",
-        "title": "Set toggle language to Macro 1 for English layout and Macro 2 for Russian layout",
-        "shortName": "RuEn\nM1M2"
-        },
-        {"name": "LG_SET_DFLT",
-        "title": "Set toggle language to default (Win+Space for PC and Ctrl+Space for Mac)",
-        "shortName": "RuEn\nDflt"
-        },
+,{"name": "LG_SET_M0", "shortName": "RuEn\nM0", "title": "Set toggle language to Macro 0"}
+,{"name": "LG_SET_M1M2", "shortName": "RuEn\nM1M2", "title": "Set toggle language to Macro 1 for English layout and Macro 2 for Russian layout"}
+,{"name": "LG_SET_DFLT", "shortName": "RuEn\nDflt", "title": "Set toggle language to default (Win+Space for PC and Ctrl+Space for Mac)"}
 
-        {"name": "LG_DOT",
-        "title": "Send .",
-        "shortName": "RuEn\n."
-        },
-        {"name": "LG_COMMA",
-        "title": "Send ,",
-        "shortName": "RuEn\n,"
-        },
-        {"name": "LG_SCLN",
-        "title": "Send ;",
-        "shortName": "RuEn\n;"
-        },
-        {"name": "LG_COLON",
-        "title": "Send :",
-        "shortName": "RuEn\n:"
-        },
-        {"name": "LG_DQUO",
-        "title": "Send \"",
-        "shortName": "RuEn\n\""
-        },
-        {"name": "LG_QUES",
-        "title": "Send ?",
-        "shortName": "RuEn\n?"
-        },
-        {"name": "LG_SLASH",
-        "title": "Send /",
-        "shortName": "RuEn\n/"
-        },
+,{"name": "LG_DOT", "shortName": "RuEn\n.", "title": "Send ."}
+,{"name": "LG_COMMA", "shortName": "RuEn\n,", "title": "Send ,"}
+,{"name": "LG_SCLN", "shortName": "RuEn\n;", "title": "Send ;"}
+,{"name": "LG_COLON", "shortName": "RuEn\n:", "title": "Send :"}
+,{"name": "LG_DQUO", "shortName": "RuEn\n\"", "title": "Send \""}
+,{"name": "LG_QUES", "shortName": "RuEn\n?", "title": "Send ?"}
+,{"name": "LG_SLASH", "shortName": "RuEn\n/", "title": "Send /"}
 
-        {"name": "LG_LBR",
-        "title": "Send [",
-        "shortName": "RuEn\n["
-        },
-        {"name": "LG_RBR",
-        "title": "Send ]",
-        "shortName": "RuEn\n]"
-        },
-        {"name": "LG_LCBR",
-        "title": "Send {",
-        "shortName": "RuEn\n{"
-        },
-        {"name": "LG_RCBR",
-        "title": "Send }",
-        "shortName": "RuEn\n}"
-        },
-        {"name": "LG_LT",
-        "title": "Send <",
-        "shortName": "RuEn\n<"
-        },
-        {"name": "LG_GT",
-        "title": "Send >",
-        "shortName": "RuEn\n>"
-        },
-        {"name": "LG_GRAVE",
-        "title": "Send `",
-        "shortName": "RuEn\n`"
-        },
-        {"name": "LG_TILD",
-        "title": "Send ~",
-        "shortName": "RuEn\n~"
-        },
-        {"name": "LG_AT",
-        "title": "Send @",
-        "shortName": "RuEn\n@"
-        },
-        {"name": "LG_HASH",
-        "title": "Send #",
-        "shortName": "RuEn\n#"
-        },
-        {"name": "LG_DLR",
-        "title": "Send $",
-        "shortName": "RuEn\n$"
-        },
-        {"name": "LG_CIRC",
-        "title": "Send ^",
-        "shortName": "RuEn\n^"
-        },
-        {"name": "LG_AMPR",
-        "title": "Send &",
-        "shortName": "RuEn\n&"
-        },
-        {"name": "LG_PIPE",
-        "title": "Send |",
-        "shortName": "RuEn\n|"
-        },
-        {"name": "LG_QUOTE",
-        "title": "Send '",
-        "shortName": "RuEn\n'"
-        },
-        {"name": "LG_NUM",
-        "title": "Send №",
-        "shortName": "RuEn\n№"
-        },
-        {"name": "LG_WORD",
-        "title": "Temporary turn on English layout and back to Russian layout on word's end",
-        "shortName": "RuEn\nword"
-        },
-        {"name": "LG_MOD",
-        "title": "Toggle layout on press and release",
-        "shortName": "RuEn\nMod"
-        },
-        {"name": "LG_STORE",
-        "title": "Store current layout (useful for macros)",
-        "shortName": "RuEn\nStore"
-        },
-        {"name": "LG_REVERT",
-        "title": "Revert to stored layout (useful for macros)",
-        "shortName": "RuEn\nRevert"
-        },
-        {"name": "LG_PERC",
-        "title": "Send % (differs on MacOS layout)",
-        "shortName": "RuEn\n%"
-        },
-        {"name": "LG_TG_MAC",
-        "title": "Toggle to use MacOS layout for Russian instead of PC layout",
-        "shortName": "RuEn\nMac Tg"
-        },
-        {"name": "LG_RU_BE",
-        "title": "Send Б",
-        "shortName": "RuEn\nБ"
-        },
-        {"name": "LG_RU_YU",
-        "title": "Send Ю",
-        "shortName": "RuEn\nЮ"
-        },
-        {"name": "LG_RU_ZHE",
-        "title": "Send Ж",
-        "shortName": "RuEn\nЖ"
-        },
-        {"name": "LG_RU_E",
-        "title": "Send Э",
-        "shortName": "RuEn\nЭ"
-        },
-        {"name": "LG_RU_KHA",
-        "title": "Send Х",
-        "shortName": "RuEn\nХ"
-        },
-        {"name": "LG_RU_HRD_SGN",
-        "title": "Send Ъ",
-        "shortName": "RuEn\nЪ"
-        },
-        {"name": "LG_RU_YO",
-        "title": "Send Ё",
-        "shortName": "RuEn\nЁ"
-        }
+,{"name": "LG_LBR", "shortName": "RuEn\n[", "title": "Send ["}
+,{"name": "LG_RBR", "shortName": "RuEn\n]", "title": "Send ]"}
+,{"name": "LG_LCBR", "shortName": "RuEn\n{", "title": "Send {"}
+,{"name": "LG_RCBR", "shortName": "RuEn\n}", "title": "Send}"}
+,{"name": "LG_LT", "shortName": "RuEn\n<", "title": "Send <"}
+,{"name": "LG_GT", "shortName": "RuEn\n>", "title": "Send >"}
+,{"name": "LG_GRAVE", "shortName": "RuEn\n`", "title": "Send `"}
+,{"name": "LG_TILD", "shortName": "RuEn\n~", "title": "Send ~"}
+,{"name": "LG_AT", "shortName": "RuEn\n@", "title": "Send @"}
+,{"name": "LG_HASH", "shortName": "RuEn\n#", "title": "Send #"}
+,{"name": "LG_DLR", "shortName": "RuEn\n$", "title": "Send $"}
+,{"name": "LG_CIRC", "shortName": "RuEn\n^", "title": "Send ^"}
+,{"name": "LG_AMPR", "shortName": "RuEn\n&", "title": "Send &"}
+,{"name": "LG_PIPE", "shortName": "RuEn\n|", "title": "Send |"}
+,{"name": "LG_QUOTE", "shortName": "RuEn\n'", "title": "Send '"}
+,{"name": "LG_NUM", "shortName": "RuEn\n№", "title": "Send №"}
+,{"name": "LG_WORD", "shortName": "RuEn\nword", "title": "Temporary turn on English layout and back to Russian layout on word's end"}
+,{"name": "LG_MOD", "shortName": "RuEn\nTg/Mod", "title": "Toggle layout on press and release"}
+,{"name": "LG_STORE", "shortName": "RuEn\nStore", "title": "Store current layout (useful for macros)"}
+,{"name": "LG_REVERT", "shortName": "RuEn\nRevert", "title": "Revert to stored layout (useful for macros)"}
+,{"name": "LG_PERC", "shortName": "RuEn\n%", "title": "Send % (differs on MacOS layout)"}
+,{"name": "LG_TG_MAC", "shortName": "RuEn\nMac Tg", "title": "Toggle to use MacOS layout for Russian instead of PC layout"}
+
+,{"name": "LG_RU_BE", "shortName": "RuEn\nБ", "title": "Send Б"}
+,{"name": "LG_RU_YU", "shortName": "RuEn\nЮ", "title": "Send Ю"}
+,{"name": "LG_RU_ZHE", "shortName": "RuEn\nЖ", "title": "Send Ж"}
+,{"name": "LG_RU_E", "shortName": "RuEn\nЭ", "title": "Send Э"}
+,{"name": "LG_RU_KHA", "shortName": "RuEn\nХ", "title": "Send Х"}
+,{"name": "LG_RU_HRD_SGN", "shortName": "RuEn\nЪ", "title": "Send Ъ"}
+,{"name": "LG_RU_YO", "shortName": "RuEn\nЁ", "title": "Send Ё"}

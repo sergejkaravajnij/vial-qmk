@@ -13,15 +13,18 @@
     },
     "processor": "RP2040",
     "bootloader": "rp2040",
+    "diode_direction": "COL2ROW",
     "matrix_pins": {
-        "direct": [
-            ["GP2",  "GP3"]
-        ]
+        "cols": [null, null],
+        "rows": [null, null]
     },
     "layouts": {
         "LAYOUT": {
             "layout": [
-                {"x": 0, "y": 0, "matrix": [0, 0]}
+                {"x": 0, "y": 0, "matrix": [0, 0]},
+                {"x": 0, "y": 1, "matrix": [0, 1]},
+                {"x": 1, "y": 0, "matrix": [1, 0]},
+                {"x": 1, "y": 1, "matrix": [1, 1]}
             ]
         }
     }
