@@ -51,3 +51,4 @@ SRC += keyboards/ergohaven/ergohaven_symbols_20.c
 SRC += keyboards/ergohaven/ergohaven_symbols_28.c
 SRC += keyboards/ergohaven/ergohaven_logo.c
 SRC += keyboards/ergohaven/ergohaven_display_modes.c
+SRC += keyboards/ergohaven/features/layer_lock.c

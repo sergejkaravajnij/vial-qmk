@@ -31,3 +31,4 @@ SRC += keyboards/ergohaven/ergohaven_main.c
 SRC += keyboards/ergohaven/ergohaven_ruen.c
 SRC += keyboards/ergohaven/hid.c
 SRC += keyboards/ergohaven/ergohaven_pointing.c
+SRC += keyboards/ergohaven/features/layer_lock.c

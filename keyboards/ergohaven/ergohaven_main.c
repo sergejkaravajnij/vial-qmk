@@ -6,6 +6,7 @@
 #include "ergohaven_pointing.h"
 #include "hid.h"
 #include "version.h"
+#include "features/layer_lock.h"
 
 typedef union {
     uint32_t raw;
@@ -183,6 +184,8 @@ bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
     if (!process_record_ruen(keycode, record)) return false;
 
     if (!process_record_pointing(keycode, record)) return false;
+
+    if (!process_layer_lock(keycode, record, LAYER_LOCK)) { return false; }
 
     return process_record_user(keycode, record);
 }
